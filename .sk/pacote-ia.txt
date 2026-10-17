@@ -1,0 +1,554 @@
+# Pacote do projeto "Assistente-Juridico-modular-17-10-b (1)" para a IA
+# 8 arquivos. Cada um começa com ===== ARQUIVO: caminho =====
+
+## Estrutura
+├── .github/
+│   └── workflows/
+│       ├── apk-capacitor.yml
+│       ├── apk.yml
+│       └── programa-exe.yml
+├── .sk/
+│   └── hub.json
+├── android/
+│   ├── app/
+│   │   ├── src/
+│   │   │   └── main/
+│   │   │       ├── assets/
+│   │   │       │   └── __ponte.js
+│   │   │       ├── java/
+│   │   │       │   └── app/
+│   │   │       │       └── minisk/
+│   │   │       │           └── shell/
+│   │   │       │               └── MainActivity.java
+│   │   │       ├── res/
+│   │   │       │   ├── mipmap-xxxhdpi/
+│   │   │       │   │   └── ic_launcher.png
+│   │   │       │   └── xml/
+│   │   │       │       └── rede.xml
+│   │   │       └── AndroidManifest.xml
+│   │   └── build.gradle
+│   ├── build.gradle
+│   ├── gradle.properties
+│   └── settings.gradle
+├── css/
+│   └── app.css
+├── electron/
+│   └── main.cjs
+├── ferramentas/
+│   ├── cacabug/
+│   │   ├── css/
+│   │   │   └── app.css
+│   │   ├── ferramentas/
+│   │   │   ├── ai-code-studio.js
+│   │   │   ├── analisador-universal.js
+│   │   │   ├── cirurgiao.js
+│   │   │   ├── gerador-eas.js
+│   │   │   ├── limpador.js
+│   │   │   ├── montar.py
+│   │   │   ├── ordem.txt
+│   │   │   ├── perito.js
+│   │   │   ├── projeto-lab.js
+│   │   │   └── triagem.js
+│   │   ├── icons/
+│   │   │   ├── icon-192.png
+│   │   │   └── icon-512.png
+│   │   ├── js/
+│   │   │   ├── lib/
+│   │   │   │   ├── expo-core.js
+│   │   │   │   ├── organizar-core.js
+│   │   │   │   └── plano-core.js
+│   │   │   ├── 00-core.js
+│   │   │   ├── 20-zip.js
+│   │   │   ├── 30-projeto.js
+│   │   │   ├── 40-ferramentas.js
+│   │   │   ├── 45-organizar.js
+│   │   │   ├── 50-relatorios.js
+│   │   │   ├── 60-comparar.js
+│   │   │   └── 99-app.js
+│   │   ├── lib/
+│   │   │   ├── diff-LICENSE.txt
+│   │   │   ├── diff.min.js
+│   │   │   ├── jszip-LICENSE.md
+│   │   │   └── jszip.min.js
+│   │   ├── index.html
+│   │   ├── LEIA-ME.md
+│   │   ├── manifest.json
+│   │   └── sw.js
+│   ├── colador.html
+│   ├── colecionador.html
+│   ├── comparador.html
+│   ├── comunicacoes.html
+│   ├── extrator.html
+│   ├── juntador.html
+│   ├── laboratorio.html
+│   ├── limpador.html
+│   ├── organizador.html
+│   └── perito.html
+├── icons/
+│   ├── apple-touch-icon.png
+│   ├── icon-128.png
+│   ├── icon-144.png
+│   ├── icon-152.png
+│   ├── icon-16.png
+│   ├── icon-180.png
+│   ├── icon-192.png
+│   ├── icon-32.png
+│   ├── icon-384.png
+│   ├── icon-48.png
+│   ├── icon-512.png
+│   ├── icon-72.png
+│   ├── icon-96.png
+│   ├── icon.svg
+│   ├── maskable-192.png
+│   ├── maskable-512.png
+│   └── maskable.svg
+├── js/
+│   ├── 00-core.js
+│   ├── 10-ia.js
+│   ├── 12-voz.js
+│   ├── 15-importar.js
+│   ├── 18-texto.js
+│   ├── 20-processar.js
+│   ├── 22-drive.js
+│   ├── 25-regras.js
+│   ├── 30-editor.js
+│   ├── 35-docx.js
+│   ├── 40-conversa.js
+│   ├── 50-documentos.js
+│   ├── 55-biblioteca.js
+│   ├── 60-codigos.js
+│   ├── 70-ferramentas.js
+│   ├── 80-config.js
+│   └── 99-app.js
+├── lib/
+│   ├── jszip-LICENSE.md
+│   └── jszip.min.js
+├── apk.config.json
+├── capacitor.config.json
+├── favicon.ico
+├── hub.html
+├── hub.webmanifest
+├── index.html
+├── LEIA-ME.md
+├── manifest.json
+├── package.json
+├── PLANO.md
+├── service-worker.js
+└── sw.js
+
+===== ARQUIVO: .github/workflows/apk-capacitor.yml =====
+name: "📱 Gerar APK (Android)"
+# Monta o APK do Assistente Jurídico com o Capacitor, sem precisar de nada no seu PC.
+# Como usar: GitHub → aba Actions → "📱 Gerar APK (Android)" → Run workflow.
+# No fim: aba "Releases" (apk-N) ou o artefato "Assistente-Juridico-APK".
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Separar o site (só o que vai dentro do app)
+        run: |
+          mkdir -p apk/www
+          cp -r index.html manifest.json sw.js css js lib icons ferramentas apk/www/
+          cp capacitor.config.json apk/
+      - name: Instalar o Capacitor
+        working-directory: apk
+        run: |
+          npm init -y >/dev/null
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+      - name: Criar o projeto Android
+        working-directory: apk
+        run: |
+          npx cap add android
+          # microfone (ditado por voz) e internet
+          sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />#' android/app/src/main/AndroidManifest.xml
+          npx cap sync android
+      - name: Montar o APK
+        working-directory: apk/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+          mkdir -p ../../saida
+          cp app/build/outputs/apk/debug/app-debug.apk ../../saida/Assistente-Juridico.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Assistente-Juridico-APK
+          path: saida/*.apk
+          retention-days: 30
+      - name: Publicar em Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: "📱 APK ${{ github.run_number }}"
+          files: saida/*.apk
+===== FIM: .github/workflows/apk-capacitor.yml =====
+
+===== ARQUIVO: .github/workflows/apk.yml =====
+# Receita para o GitHub montar o APK — gerada pelo painel 📦 APK do Mini SK.
+# Nada aqui esconde erro: se um passo falhar, fica VERMELHO e o painel mostra onde.
+name: "📦 Gerar APK"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: "1. Baixar o projeto"
+        uses: actions/checkout@v4
+
+      - name: "2. Conferir configuração"
+        run: |
+          test -f apk.config.json || { echo "::error::Falta o apk.config.json. Use 'Preparar arquivos' no painel 📦 APK."; exit 1; }
+          test -f index.html || { echo "::error::Falta o index.html na raiz do projeto."; exit 1; }
+          test -f android/app/build.gradle || { echo "::error::Falta a pasta android/. Use 'Preparar arquivos' no painel 📦 APK."; exit 1; }
+          jq . apk.config.json
+
+      - name: "3. Instalar Java 17"
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: "4. Instalar Gradle"
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: "5. Chave de assinatura (só na primeira vez)"
+        run: |
+          if [ -f android/release.keystore ]; then
+            echo "Chave já existe — o APK novo instala por cima do antigo."
+          else
+            keytool -genkeypair -v -keystore android/release.keystore -alias app -keyalg RSA -keysize 2048 -validity 10000 -storepass minisk-apk -keypass minisk-apk -dname "CN=Mini SK, O=App, C=BR"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add android/release.keystore
+            git commit -m "Chave de assinatura do APK (não apagar)"
+            git push
+          fi
+
+      - name: "6. Colocar o site dentro do APK"
+        run: |
+          mkdir -p android/app/src/main/assets/www
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'android' --exclude '.sk' --exclude 'apk.config.json' ./ android/app/src/main/assets/www/
+          echo "Arquivos dentro do APK: $(find android/app/src/main/assets/www -type f | wc -l)"
+
+      - name: "7. Montar o APK"
+        working-directory: android
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      - name: "8. Dar nome ao APK"
+        id: apk
+        run: |
+          NOME=$(jq -r '.arquivo' apk.config.json)
+          VER=$(jq -r '.versao' apk.config.json)
+          SAIDA="${NOME}-v${VER}.apk"
+          cp android/app/build/outputs/apk/release/app-release.apk "$SAIDA"
+          ls -la "$SAIDA"
+          echo "arquivo=$SAIDA" >> "$GITHUB_OUTPUT"
+
+      - name: "9. Guardar o APK"
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: ${{ steps.apk.outputs.arquivo }}
+          if-no-files-found: error
+
+      - name: "10. Link de download (Releases)"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-${{ github.run_number }}
+          name: "APK ${{ steps.apk.outputs.arquivo }}"
+          files: ${{ steps.apk.outputs.arquivo }}
+===== FIM: .github/workflows/apk.yml =====
+
+===== ARQUIVO: .github/workflows/programa-exe.yml =====
+# Gera o programa .exe (Windows). Assistente Jurídico modular.
+# Antes de entregar, o GitHub liga o programa e confere. Se falhar, fica VERMELHO.
+name: "Programa .exe para Windows"
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  exe:
+    runs-on: windows-latest
+    timeout-minutes: 45   # nunca fica "testando" para sempre
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Instalar as peças
+        run: npm install --no-audit --no-fund
+      - name: Teste - o programa liga?
+        shell: pwsh
+        timeout-minutes: 4      # se travar, desiste em 4 minutos
+        continue-on-error: true # e faz o .exe mesmo assim (o aviso fica amarelo)
+        run: |
+          $env:TESTE_SAIR = "1"
+          npx electron .
+          if ($LASTEXITCODE -ne 0) { throw "O programa não ligou" }
+      - name: Fazer o .exe
+        run: npx electron-builder --win nsis portable --x64 --publish never
+      - name: Entregar para baixar (Releases)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: exe-${{ github.run_number }}
+          name: "Assistente-Juridico ${{ github.run_number }}"
+          files: release/*.exe
+      - name: Entregar também em Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Assistente-Juridico-Windows
+          path: release/*.exe
+          retention-days: 30
+===== FIM: .github/workflows/programa-exe.yml =====
+
+===== ARQUIVO: capacitor.config.json =====
+{
+  "appId": "com.maikon.juridico",
+  "appName": "Assistente Jurídico",
+  "webDir": "www",
+  "android": { "allowMixedContent": true }
+}
+===== FIM: capacitor.config.json =====
+
+===== ARQUIVO: electron/main.cjs =====
+// Assistente Jurídico como programa do Windows: abre o index.html numa janela própria
+// e liga o Ollama (IA grátis do computador) se ele estiver instalado.
+const { app, BrowserWindow, shell, session, dialog } = require('electron');
+const { spawn } = require('child_process');
+const path = require('path'), fs = require('fs'), http = require('http');
+if (!app.requestSingleInstanceLock()) { app.quit(); return; }
+const RAIZ = path.join(__dirname, '..');
+const PORTA = Number(require('../package.json').portaDoPrograma || 7700); // fixa: os dados ficam guardados "por endereço"
+const TIPOS = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp', '.webmanifest': 'application/manifest+json', '.wasm': 'application/wasm', '.mp3': 'audio/mpeg', '.mp4': 'video/mp4', '.woff2': 'font/woff2', '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8' };
+function servir() {
+  return new Promise((ok) => {
+    const s = http.createServer((req, res) => {
+      let u = decodeURIComponent(new URL(req.url, 'http://x').pathname); if (u.endsWith('/')) u += 'index.html';
+      const f = path.join(RAIZ, path.normalize(u).replace(/^([\\/])+/, ''));
+      if (!f.startsWith(RAIZ) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end('não existe'); }
+      res.writeHead(200, { 'Content-Type': TIPOS[path.extname(f).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-cache' }); fs.createReadStream(f).pipe(res);
+    });
+    s.once('error', () => { dialog.showErrorBox('Programa', 'A porta ' + PORTA + ' está ocupada. Feche o outro programa e abra de novo.'); app.exit(1); });
+    s.listen(PORTA, '127.0.0.1', () => ok('http://127.0.0.1:' + PORTA));
+  });
+}
+// 🦙 se o Ollama estiver instalado e desligado, liga escondido (sem janela preta)
+function ollamaLigado() { return new Promise((ok) => { const q = http.get('http://127.0.0.1:11434/api/version', (r) => { r.resume(); ok(r.statusCode === 200); }); q.on('error', () => ok(false)); q.setTimeout(2500, () => { q.destroy(); ok(false); }); }); }
+async function ligarOllama() {
+  if (await ollamaLigado()) return;
+  const cmds = [['ollama', ['serve']]];
+  if (process.platform === 'win32' && process.env.LOCALAPPDATA) cmds.push([path.join(process.env.LOCALAPPDATA, 'Programs', 'Ollama', 'ollama.exe'), ['serve']]);
+  for (const [c, a] of cmds) { try { const p = spawn(c, a, { detached: true, stdio: 'ignore', windowsHide: true }); p.on('error', () => {}); p.unref(); } catch { continue; } await new Promise((r) => setTimeout(r, 3000)); if (await ollamaLigado()) return; }
+}
+let janela = null;
+app.whenReady().then(async () => {
+  const base = await servir();
+  if (process.env.TESTE_SAIR === '1') { http.get(base + '/', (r) => app.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => app.exit(1)); return; }
+  session.defaultSession.setPermissionRequestHandler((_w, p, cb) => cb(['media', 'clipboard-read', 'clipboard-sanitized-write', 'fullscreen', 'notifications'].includes(p)));
+  janela = new BrowserWindow({ width: 1280, height: 860, autoHideMenuBar: true });
+  janela.webContents.setWindowOpenHandler(({ url }) => { if (url.startsWith(base) || url.startsWith('blob:') || url === 'about:blank' || url.startsWith('https://accounts.google.com/')) return { action: 'allow', overrideBrowserWindowOptions: { width: 520, height: 680, autoHideMenuBar: true } }; /* a janelinha de entrar no Google (☁️ Drive) abre aqui dentro */ shell.openExternal(url); return { action: 'deny' }; });
+  janela.loadURL(base + '/');
+  ligarOllama().catch(() => {});
+});
+app.on('second-instance', () => { if (janela) { if (janela.isMinimized()) janela.restore(); janela.focus(); } });
+app.on('window-all-closed', () => app.quit());
+===== FIM: electron/main.cjs =====
+
+===== ARQUIVO: ferramentas/cacabug/manifest.json =====
+{
+  "id": "./app-caca-bug",
+  "name": "Caça-Bug",
+  "short_name": "Caça-Bug",
+  "description": "Acha e explica erros de projetos",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1420",
+  "theme_color": "#0f1420",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
+===== FIM: ferramentas/cacabug/manifest.json =====
+
+===== ARQUIVO: manifest.json =====
+{
+  "id": "./app-assistente-juridico-modular",
+  "name": "assistente-juridico-modular",
+  "short_name": "assistente-j",
+  "description": "Assistente jurídico com IA: processar, editor com Word, conversa por voz, documentos e ferramentas.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "icons/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "orientation": "any",
+  "dir": "ltr"
+}
+===== FIM: manifest.json =====
+
+===== ARQUIVO: package.json =====
+{
+  "name": "assistente-juridico-modular",
+  "version": "1.6.0",
+  "description": "Assistente Jurídico",
+  "author": "Maikon",
+  "private": true,
+  "main": "electron/main.cjs",
+  "portaDoPrograma": 10314,
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "com.maikon.juridico.modular.nassistente1",
+    "productName": "Assistente Jurídico (Assistente 1)",
+    "executableName": "Assistente-Juridico-nassistente1",
+    "directories": {
+      "output": "release"
+    },
+    "asar": false,
+    "files": [
+      "**/*",
+      "!.github/**",
+      "!release/**",
+      "!*.zip",
+      "!node_modules/.cache/**"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icons/icon-512.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Assistente Jurídico (Assistente 1)",
+      "artifactName": "Assistente-Juridico-nassistente1-Instalar.exe"
+    },
+    "portable": {
+      "artifactName": "Assistente-Juridico-nassistente1-sem-instalar.exe"
+    }
+  }
+}
+===== FIM: package.json =====
+
