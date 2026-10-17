@@ -5,15 +5,15 @@
   "author": "Maikon",
   "private": true,
   "main": "electron/main.cjs",
-  "portaDoPrograma": 10314,
+  "portaDoPrograma": 10317,
   "devDependencies": {
     "electron": "33.2.1",
     "electron-builder": "25.1.8"
   },
   "build": {
-    "appId": "com.maikon.juridico.modular.nassistente1",
-    "productName": "Assistente Jurídico (Assistente 1)",
-    "executableName": "Assistente-Juridico-nassistente1",
+    "appId": "com.maikon.juridico.modular.nassistente2",
+    "productName": "Assistente Jurídico (Assistente 2)",
+    "executableName": "Assistente-Juridico-nassistente2",
     "directories": {
       "output": "release"
     },
@@ -37,11 +37,11 @@
       "perMachine": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Assistente Jurídico (Assistente 1)",
-      "artifactName": "Assistente-Juridico-nassistente1-Instalar.exe"
+      "shortcutName": "Assistente Jurídico (Assistente 2)",
+      "artifactName": "Assistente-Juridico-nassistente2-Instalar.exe"
     },
     "portable": {
-      "artifactName": "Assistente-Juridico-nassistente1-sem-instalar.exe"
+      "artifactName": "Assistente-Juridico-nassistente2-sem-instalar.exe"
     }
   }
 }

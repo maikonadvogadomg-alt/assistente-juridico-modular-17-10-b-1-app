@@ -1,10 +1,20 @@
-// service-worker.js — gerado pelo Mini SK em 17/10/2026, 13:30:49
+// service-worker.js — gerado pelo Mini SK em 17/10/2026, 13:38:05
 // Não precisa mexer: ele guarda sozinho o que o app usa.
 const PREFIXO = 'sk-assistente-juridico-modular-';
-const CACHE = PREFIXO + 'mvcm56ad';
+const CACHE = PREFIXO + 'mvcmei8n';
 // Lista feita automaticamente (para funcionar sem internet logo após instalar)
 const GUARDAR = [
   "./",
+  "./android/app/build.gradle",
+  "./android/app/src/main/AndroidManifest.xml",
+  "./android/app/src/main/assets/__ponte.js",
+  "./android/app/src/main/java/app/minisk/shell/MainActivity.java",
+  "./android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+  "./android/app/src/main/res/xml/rede.xml",
+  "./android/build.gradle",
+  "./android/gradle.properties",
+  "./android/settings.gradle",
+  "./apk.config.json",
   "./capacitor.config.json",
   "./css/app.css",
   "./electron/main.cjs",
@@ -94,6 +104,7 @@ const GUARDAR = [
   "./manifest.json",
   "./package.json",
   "./PLANO.md",
+  "./RECEITA.md",
   "./sw.js"
 ];
 

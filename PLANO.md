@@ -1,19 +1,19 @@
 # 📋 Plano do projeto: Assistente-Juridico-modular-17-10-b (1)
 
-_Gerado em 17/10/2026, 13:30:49 — sem IA, lendo os arquivos._
+_Gerado em 17/10/2026, 13:38:05 — sem IA, lendo os arquivos._
 
 ## 📊 Visão geral
 | Item | Valor |
 |---|---|
-| Arquivos | 93 |
-| Linhas | 13.529 |
+| Arquivos | 96 |
+| Linhas | 14.158 |
 | Telas/páginas | 13 |
 | Rotas do backend | 0 |
 | Chamadas do app | 3 |
 | Tabelas do banco | 0 |
 | Variáveis de ambiente | 5 |
 
-**Linguagens:** JavaScript (43), Imagem (17), HTML (13), Markdown (5), JSON (4), Outros (3), YAML (2), CSS (2), Imagem SVG (2), Ícone (1), Python (1)
+**Linguagens:** JavaScript (43), Imagem (17), HTML (13), Markdown (6), JSON (5), YAML (3), Outros (3), CSS (2), Imagem SVG (2), Ícone (1), Python (1)
 
 ## 💡 O que fazer (em ordem)
 1. 🧹 Tirar a Replit de 10 arquivo(s) (🏗️ Preparar → Fazer tudo)
@@ -142,6 +142,7 @@ _Só os nomes. Os valores (chaves, senhas) nunca vão no código nem no GitHub._
 ├─ 📁 .github/
 │  └─ 📁 workflows/
 │     ├─ apk-capacitor.yml
+│     ├─ apk.yml
 │     └─ programa-exe.yml
 ├─ 📁 css/
 │  └─ app.css
@@ -236,6 +237,7 @@ _Só os nomes. Os valores (chaves, senhas) nunca vão no código nem no GitHub._
 ├─ 📁 lib/
 │  ├─ jszip-LICENSE.md
 │  └─ jszip.min.js
+├─ apk.config.json
 ├─ capacitor.config.json
 ├─ favicon.ico
 ├─ hub.html
@@ -245,6 +247,7 @@ _Só os nomes. Os valores (chaves, senhas) nunca vão no código nem no GitHub._
 ├─ manifest.json
 ├─ package.json
 ├─ PLANO.md
+├─ RECEITA.md
 ├─ service-worker.js
 └─ sw.js
 ```
