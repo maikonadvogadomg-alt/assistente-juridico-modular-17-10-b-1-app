@@ -1,12 +1,12 @@
 # 📋 Plano do projeto: Assistente-Juridico-modular-17-10-b (1)
 
-_Gerado em 17/10/2026, 13:38:05 — sem IA, lendo os arquivos._
+_Gerado em 17/10/2026, 13:41:11 — sem IA, lendo os arquivos._
 
 ## 📊 Visão geral
 | Item | Valor |
 |---|---|
 | Arquivos | 96 |
-| Linhas | 14.158 |
+| Linhas | 14.161 |
 | Telas/páginas | 13 |
 | Rotas do backend | 0 |
 | Chamadas do app | 3 |

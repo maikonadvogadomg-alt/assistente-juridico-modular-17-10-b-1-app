@@ -1,9 +1,9 @@
 {
-  "nome": "Assistente-Juridico-ll",
+  "nome": "Assistente-Juridico-ll (Assistente 2)",
   "arquivo": "assistente-juridico-ll",
-  "pacote": "com.maikonadvogadomgalt.assistentejuridicomodular1710b1",
-  "versao": "1.0",
-  "versaoCodigo": 1,
+  "pacote": "com.maikonadvogadomgalt.assistentejuridicomodular1710b1.nassistente2",
+  "versao": "1.1",
+  "versaoCodigo": 2,
   "cor": "#0f1420",
   "orientacao": "unspecified",
   "lacre": false

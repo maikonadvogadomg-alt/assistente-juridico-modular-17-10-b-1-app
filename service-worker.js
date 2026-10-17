@@ -1,7 +1,7 @@
-// service-worker.js — gerado pelo Mini SK em 17/10/2026, 13:38:05
+// service-worker.js — gerado pelo Mini SK em 17/10/2026, 13:41:42
 // Não precisa mexer: ele guarda sozinho o que o app usa.
-const PREFIXO = 'sk-assistente-juridico-modular-';
-const CACHE = PREFIXO + 'mvcmei8n';
+const PREFIXO = 'sk-assistente-juridico-modular-17-';
+const CACHE = PREFIXO + 'mvcmj69t';
 // Lista feita automaticamente (para funcionar sem internet logo após instalar)
 const GUARDAR = [
   "./",
