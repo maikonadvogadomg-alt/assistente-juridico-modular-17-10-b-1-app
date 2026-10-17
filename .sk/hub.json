@@ -1,0 +1,94 @@
+{
+  "titulo": "Assistente-Juridico-modular-17-10-b (1)",
+  "arquivo": "hub.html",
+  "itens": [
+    {
+      "path": "ferramentas/cacabug/index.html",
+      "nome": "Caça-Bug",
+      "desc": "",
+      "on": true,
+      "icone": "ferramentas/cacabug/icons/icon-192.png"
+    },
+    {
+      "path": "ferramentas/colador.html",
+      "nome": "Colador de Links",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/colecionador.html",
+      "nome": "Colecionador de Comandos",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/comparador.html",
+      "nome": "Comparador de Versões",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/comunicacoes.html",
+      "nome": "Comunicações Processuais",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/extrator.html",
+      "nome": "Extrator de Sites",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/juntador.html",
+      "nome": "Juntador de Arquivos",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/laboratorio.html",
+      "nome": "Laboratório HTML",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/limpador.html",
+      "nome": "Limpador de Processos",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/organizador.html",
+      "nome": "Organizador de Documentos",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "ferramentas/perito.html",
+      "nome": "Perito de Metadados",
+      "desc": "",
+      "on": false,
+      "icone": ""
+    },
+    {
+      "path": "index.html",
+      "nome": "Assistente Jurídico",
+      "desc": "",
+      "on": false,
+      "icone": "icons/icon.svg"
+    }
+  ],
+  "sub": "",
+  "logo": "",
+  "tema": "escuro",
+  "links": []
+}

@@ -1,0 +1,6 @@
+{
+  "appId": "com.maikon.juridico",
+  "appName": "Assistente Jurídico",
+  "webDir": "www",
+  "android": { "allowMixedContent": true }
+}

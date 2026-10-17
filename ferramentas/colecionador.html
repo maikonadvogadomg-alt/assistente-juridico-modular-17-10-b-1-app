@@ -1,0 +1,1671 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1d2a44">
+<title>Colecionador de Comandos</title>
+<style>
+:root { --bg:#f1f2f6; --p:#fff; --f:#1b2130; --m:#5d6578; --l:#d9dde6; --az:#2a5bd7; --azc:#e6edfc; --v:#1f6b4f; --vc:#e3f1e9; --a:#fff3d3; --r:#a3332a; --rc:#fbe6e3; --cod:#141b2a; --codf:#dce6ff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#10141c; --p:#181f2b; --f:#e8ebf2; --m:#9aa4b7; --l:#2a3343; --az:#7ea2ff; --azc:#1c2742; --v:#6fd1a4; --vc:#1d3329; --a:#33290f; --r:#f0958c; --rc:#3a1f1c; --cod:#0b0f18; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--f); font:17px/1.5 system-ui,"Segoe UI",Roboto,sans-serif; }
+header { background:#1d2a44; color:#fff; padding:12px 16px; position:sticky; top:0; z-index:5; }
+header .linha1 { display:flex; align-items:center; gap:8px; }
+header b { font-size:19px; flex:1; }
+header small { color:#aebbd6; font-size:13px; }
+.busca { display:flex; gap:6px; margin-top:8px; }
+.busca input { flex:1; min-width:0; font:inherit; padding:10px 12px; border-radius:10px; border:0; }
+.bt { border:1px solid var(--l); background:var(--p); color:var(--f); border-radius:10px; padding:9px 13px; font:inherit; font-size:15px; cursor:pointer; min-height:42px; }
+.bt.az { background:var(--az); border-color:var(--az); color:#fff; font-weight:600; }
+.bt.r { background:var(--r); border-color:var(--r); color:#fff; }
+.bt.mini { min-height:34px; padding:5px 10px; font-size:14px; }
+.bt.cab { background:#33456b; border-color:#4a5d86; color:#fff; }
+main { max-width:860px; margin:0 auto; padding:10px 14px 90px; }
+.acoes { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 4px; }
+.filtros { display:flex; gap:6px; overflow-x:auto; padding:6px 0; }
+.filtros button { flex:none; border:1px solid var(--l); background:var(--p); color:var(--f); border-radius:999px; padding:6px 12px; font:inherit; font-size:14px; cursor:pointer; }
+.filtros button.on { background:var(--az); border-color:var(--az); color:#fff; }
+.item { background:var(--p); border:1px solid var(--l); border-radius:14px; padding:12px 14px; margin:10px 0; }
+.item h3 { margin:0 0 4px; font-size:18px; display:flex; gap:8px; align-items:flex-start; }
+.item h3 span.t { flex:1; }
+.selo { display:inline-block; font-size:12px; font-weight:700; padding:2px 9px; border-radius:999px; background:var(--azc); color:var(--az); white-space:nowrap; }
+.exp { color:var(--m); font-size:15px; margin:4px 0; white-space:pre-wrap; }
+.passo { margin:8px 0; }
+.passo .n { font-weight:700; color:var(--az); margin-right:4px; }
+.cmd { display:flex; gap:8px; align-items:flex-start; background:var(--cod); color:var(--codf); border-radius:10px; padding:10px; margin:4px 0; }
+.cmd pre { flex:1; min-width:0; margin:0; font:14px/1.5 ui-monospace,Consolas,monospace; white-space:pre-wrap; overflow-wrap:anywhere; }
+.cmd button { flex:none; border:0; border-radius:8px; background:#3a64d8; color:#fff; padding:7px 10px; font:14px system-ui; cursor:pointer; }
+.perigo { background:var(--rc); color:var(--r); border-radius:8px; padding:6px 10px; font-size:14px; margin:4px 0; }
+.rodape-item { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; border-top:1px solid var(--l); padding-top:8px; }
+.mut { color:var(--m); font-size:14px; }
+.aviso { background:var(--a); border-radius:10px; padding:10px 12px; font-size:15px; margin:8px 0; }
+.ok { background:var(--vc); border-radius:10px; padding:10px 12px; font-size:15px; margin:8px 0; }
+dialog { border:0; border-radius:16px; padding:0; width:min(96vw,760px); max-height:92vh; background:var(--p); color:var(--f); box-shadow:0 20px 60px rgba(0,0,0,.35); }
+dialog::backdrop { background:rgba(10,15,30,.55); }
+.dlg { padding:14px 16px; overflow:auto; max-height:92vh; }
+.dlg h2 { margin:0 0 10px; font-size:20px; }
+.campo { margin:8px 0; } .campo label { display:block; font-size:14px; font-weight:600; margin-bottom:3px; }
+.campo input, .campo select, .campo textarea { width:100%; font:inherit; padding:9px 11px; border-radius:10px; border:1px solid var(--l); background:var(--p); color:var(--f); }
+textarea.mono { font:14px/1.5 ui-monospace,Consolas,monospace; }
+.passo-ed { border:1px solid var(--l); border-radius:12px; padding:8px 10px; margin:8px 0; background:var(--bg); }
+.extraido { border:1px solid var(--l); border-radius:12px; padding:8px 10px; margin:8px 0; }
+.extraido.off { opacity:.45; }
+.qr { display:flex; justify-content:center; padding:10px; background:#fff; border-radius:12px; }
+.qr canvas { width:min(78vw,340px); height:auto; image-rendering:pixelated; }
+.vazio { text-align:center; padding:30px 10px; color:var(--m); }
+.toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#1b2130; color:#fff; padding:10px 16px; border-radius:10px; z-index:99; box-shadow:0 6px 20px rgba(0,0,0,.3); max-width:92vw; }
+</style>
+</head>
+<body>
+<header>
+  <div class="linha1"><b>🧰 Colecionador de Comandos</b><small id="conta"></small></div>
+  <div class="busca"><input type="search" id="q" placeholder="Procurar: backup, adb, ollama…" aria-label="Procurar"><button class="bt cab" id="mic-q" title="Falar">🎤</button></div>
+</header>
+<main>
+  <div class="acoes">
+    <button class="bt az" id="b-colar">📥 Colar resposta da IA</button>
+    <button class="bt" id="b-novo">＋ Novo</button>
+    <button class="bt" id="b-exportar">💾 Guardar cópia</button>
+    <button class="bt" id="b-importar">📂 Abrir cópia</button>
+    <input type="file" id="arq" accept=".json,application/json,text/plain" hidden>
+  </div>
+  <div id="lembrete"></div>
+  <div class="filtros" id="filtros"></div>
+  <div id="lista"></div>
+</main>
+
+<!-- editor -->
+<dialog id="dlg-ed"><div class="dlg">
+  <h2 id="ed-titulo-dlg">Comando</h2>
+  <div class="campo"><label>Nome (para achar depois)</label><div style="display:flex;gap:6px"><input id="ed-titulo" placeholder="ex.: Fazer backup do celular"><button class="bt" type="button" data-mic="ed-titulo">🎤</button></div></div>
+  <div class="campo"><label>Onde roda</label><select id="ed-onde"></select></div>
+  <div class="campo"><label>Para que serve (explicação)</label><textarea id="ed-exp" rows="2" placeholder="ex.: Copia as fotos do celular para o computador pelo Wi-Fi"></textarea></div>
+  <div id="ed-passos"></div>
+  <button class="bt mini" id="ed-mais" type="button">＋ Mais um passo (comando seguinte)</button>
+  <div class="campo"><label>Etiquetas (separadas por vírgula)</label><input id="ed-tags" placeholder="backup, celular"></div>
+  <div class="acoes" style="justify-content:flex-end;margin-top:12px"><button class="bt" id="ed-cancelar" type="button">Cancelar</button><button class="bt az" id="ed-salvar" type="button">✅ Salvar</button></div>
+</div></dialog>
+
+<!-- colar da IA -->
+<dialog id="dlg-colar"><div class="dlg">
+  <h2>📥 Colar resposta da IA</h2>
+  <p class="mut" style="margin:0 0 6px">Copie a resposta inteira (do Claude, do Gemini…) e cole aqui. Eu separo cada comando com a explicação que veio antes dele.</p>
+  <textarea id="colar-txt" rows="8" class="mono" style="width:100%;border-radius:10px;border:1px solid var(--l);padding:10px;background:var(--p);color:var(--f)" placeholder="Cole aqui…"></textarea>
+  <div class="acoes"><button class="bt" id="colar-area" type="button">📋 Colar do celular</button><button class="bt az" id="colar-separar" type="button">✂️ Separar os comandos</button></div>
+  <div id="colar-res"></div>
+  <div class="acoes" style="justify-content:flex-end;margin-top:10px"><button class="bt" id="colar-fechar" type="button">Fechar</button></div>
+</div></dialog>
+
+<!-- QR -->
+<dialog id="dlg-qr"><div class="dlg" style="text-align:center">
+  <h2 id="qr-titulo">📱 Passar para outro aparelho</h2>
+  <p class="mut" style="margin:0 0 8px">No outro celular, abra a <b>câmera</b> e aponte para o quadrado. Toque no texto que aparece → <b>Copiar</b>.</p>
+  <div class="qr"><canvas id="qr-canvas"></canvas></div>
+  <p id="qr-parte" class="mut"></p>
+  <div class="acoes" style="justify-content:center"><button class="bt" id="qr-ant" type="button">◀</button><label class="mut" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="qr-exp"> com explicação</label><button class="bt" id="qr-prox" type="button">▶</button></div>
+  <div class="acoes" style="justify-content:center"><button class="bt az" id="qr-fechar" type="button">Fechar</button></div>
+</div></dialog>
+
+<script>
+/* QRCode for JavaScript — (c) 2009 Kazuhiko Arase — MIT license (www.d-project.com). Empacotado para funcionar sem internet. */
+var QRLib=(function(){var M={},C={};function req(n){n=n.replace("./","");if(C[n])return C[n].exports;var m={exports:{}};C[n]=m;M[n](m,m.exports);return m.exports;}
+M["QR8bitByte"]=function(module,exports){
+var QRMode = req('./QRMode');
+
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function() {
+		return this.data.length;
+	},
+	
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			// not JIS ...
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+
+module.exports = QR8bitByte;
+
+};
+M["QRBitBuffer"]=function(module,exports){
+function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+
+QRBitBuffer.prototype = {
+
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+	},
+	
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+		}
+	},
+	
+	getLengthInBits : function() {
+		return this.length;
+	},
+	
+	putBit : function(bit) {
+	
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+	
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+	
+		this.length++;
+	}
+};
+
+module.exports = QRBitBuffer;
+
+};
+M["QRErrorCorrectLevel"]=function(module,exports){
+module.exports = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+
+
+};
+M["QRMaskPattern"]=function(module,exports){
+module.exports = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+
+};
+M["QRMath"]=function(module,exports){
+var QRMath = {
+
+	glog : function(n) {
+	
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		
+		return QRMath.LOG_TABLE[n];
+	},
+	
+	gexp : function(n) {
+	
+		while (n < 0) {
+			n += 255;
+		}
+	
+		while (n >= 256) {
+			n -= 255;
+		}
+	
+		return QRMath.EXP_TABLE[n];
+	},
+	
+	EXP_TABLE : new Array(256),
+	
+	LOG_TABLE : new Array(256)
+
+};
+	
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+
+module.exports = QRMath;
+
+};
+M["QRMode"]=function(module,exports){
+module.exports = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+
+};
+M["QRPolynomial"]=function(module,exports){
+var QRMath = req('./QRMath');
+
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+	
+	getLength : function() {
+		return this.num.length;
+	},
+	
+	multiply : function(e) {
+	
+		var num = new Array(this.getLength() + e.getLength() - 1);
+	
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+	
+		return new QRPolynomial(num, 0);
+	},
+	
+	mod : function(e) {
+	
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+	
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+	
+		var num = new Array(this.getLength() );
+		
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+	
+		// recursive call
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+
+module.exports = QRPolynomial;
+
+};
+M["QRRSBlock"]=function(module,exports){
+var QRErrorCorrectLevel = req('./QRErrorCorrectLevel');
+
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	// L
+	// M
+	// Q
+	// H
+
+	// 1
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	
+	// 2
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	// 3
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	// 4		
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	
+	// 5
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	
+	// 6
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	
+	// 7		
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	
+	// 8
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	
+	// 9
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+	
+	// 10		
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	// 11
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	// 12
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	// 13
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	// 14
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	// 15
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+
+	// 16
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	// 17
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	// 18
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	// 19
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	// 20
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	// 21
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	// 22
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	// 23
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	// 24
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	// 25
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	// 26
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	// 27
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	// 28
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	// 29
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	// 30
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	// 31
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	// 32
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	// 33
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	// 34
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	// 35
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	// 36
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	// 37
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	// 38
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	// 39
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	// 40
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+	
+	var list = [];
+	
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+
+module.exports = QRRSBlock;
+
+};
+M["QRUtil"]=function(module,exports){
+var QRMode = req('./QRMode');
+var QRPolynomial = req('./QRPolynomial');
+var QRMath = req('./QRMath');
+var QRMaskPattern = req('./QRMaskPattern');
+
+var QRUtil = {
+
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+
+    getBCHDigit : function(data) {
+
+        var digit = 0;
+
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+
+        return digit;
+    },
+
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+
+    getMask : function(maskPattern, i, j) {
+        
+        switch (maskPattern) {
+            
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+        case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+        case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+        case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+        case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+        case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+
+        default :
+            throw new Error("bad maskPattern:" + maskPattern);
+        }
+    },
+
+    getErrorCorrectPolynomial : function(errorCorrectLength) {
+
+        var a = new QRPolynomial([1], 0);
+
+        for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+        }
+
+        return a;
+    },
+
+    getLengthInBits : function(mode, type) {
+
+        if (1 <= type && type < 10) {
+
+            // 1 - 9
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 10;
+            case QRMode.MODE_ALPHA_NUM  : return 9;
+            case QRMode.MODE_8BIT_BYTE  : return 8;
+            case QRMode.MODE_KANJI      : return 8;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 27) {
+
+            // 10 - 26
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 12;
+            case QRMode.MODE_ALPHA_NUM  : return 11;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 10;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 41) {
+
+            // 27 - 40
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 14;
+            case QRMode.MODE_ALPHA_NUM  : return 13;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 12;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else {
+            throw new Error("type:" + type);
+        }
+    },
+
+    getLostPoint : function(qrCode) {
+        
+        var moduleCount = qrCode.getModuleCount();
+        var lostPoint = 0;
+        var row = 0; 
+        var col = 0;
+
+        
+        // LEVEL1
+        
+        for (row = 0; row < moduleCount; row++) {
+
+            for (col = 0; col < moduleCount; col++) {
+
+                var sameCount = 0;
+                var dark = qrCode.isDark(row, col);
+
+                for (var r = -1; r <= 1; r++) {
+
+                    if (row + r < 0 || moduleCount <= row + r) {
+                        continue;
+                    }
+
+                    for (var c = -1; c <= 1; c++) {
+
+                        if (col + c < 0 || moduleCount <= col + c) {
+                            continue;
+                        }
+
+                        if (r === 0 && c === 0) {
+                            continue;
+                        }
+
+                        if (dark === qrCode.isDark(row + r, col + c) ) {
+                            sameCount++;
+                        }
+                    }
+                }
+
+                if (sameCount > 5) {
+                    lostPoint += (3 + sameCount - 5);
+                }
+            }
+        }
+
+        // LEVEL2
+
+        for (row = 0; row < moduleCount - 1; row++) {
+            for (col = 0; col < moduleCount - 1; col++) {
+                var count = 0;
+                if (qrCode.isDark(row,     col    ) ) count++;
+                if (qrCode.isDark(row + 1, col    ) ) count++;
+                if (qrCode.isDark(row,     col + 1) ) count++;
+                if (qrCode.isDark(row + 1, col + 1) ) count++;
+                if (count === 0 || count === 4) {
+                    lostPoint += 3;
+                }
+            }
+        }
+
+        // LEVEL3
+
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount - 6; col++) {
+                if (qrCode.isDark(row, col) && 
+                        !qrCode.isDark(row, col + 1) && 
+                         qrCode.isDark(row, col + 2) && 
+                         qrCode.isDark(row, col + 3) && 
+                         qrCode.isDark(row, col + 4) && 
+                        !qrCode.isDark(row, col + 5) && 
+                         qrCode.isDark(row, col + 6) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount - 6; row++) {
+                if (qrCode.isDark(row, col) &&
+                        !qrCode.isDark(row + 1, col) &&
+                         qrCode.isDark(row + 2, col) &&
+                         qrCode.isDark(row + 3, col) &&
+                         qrCode.isDark(row + 4, col) &&
+                        !qrCode.isDark(row + 5, col) &&
+                         qrCode.isDark(row + 6, col) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        // LEVEL4
+        
+        var darkCount = 0;
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount; row++) {
+                if (qrCode.isDark(row, col) ) {
+                    darkCount++;
+                }
+            }
+        }
+        
+        var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+        lostPoint += ratio * 10;
+
+        return lostPoint;       
+    }
+
+};
+
+module.exports = QRUtil;
+
+};
+M["index"]=function(module,exports){
+//---------------------------------------------------------------------
+// QRCode for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//   http://www.opensource.org/licenses/mit-license.php
+//
+// The word "QR Code" is registered trademark of 
+// DENSO WAVE INCORPORATED
+//   http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+// Modified to work in node for this project (and some refactoring)
+//---------------------------------------------------------------------
+
+var QR8bitByte = req('./QR8bitByte');
+var QRUtil = req('./QRUtil');
+var QRPolynomial = req('./QRPolynomial');
+var QRRSBlock = req('./QRRSBlock');
+var QRBitBuffer = req('./QRBitBuffer');
+
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+
+QRCode.prototype = {
+	
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	
+	make : function() {
+		// Calculate automatically typeNumber if provided is < 1
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	
+	makeImpl : function(test, maskPattern) {
+		
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		
+		for (var row = 0; row < this.moduleCount; row++) {
+			
+			this.modules[row] = new Array(this.moduleCount);
+			
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;//(col + row) % 3;
+			}
+		}
+	
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+	
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+	
+		this.mapData(this.dataCache, maskPattern);
+	},
+
+	setupPositionProbePattern : function(row, col)  {
+		
+		for (var r = -1; r <= 7; r++) {
+			
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			
+			for (var c = -1; c <= 7; c++) {
+				
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	
+	getBestMaskPattern : function() {
+	
+		var minLostPoint = 0;
+		var pattern = 0;
+	
+		for (var i = 0; i < 8; i++) {
+			
+			this.makeImpl(true, i);
+	
+			var lostPoint = QRUtil.getLostPoint(this);
+	
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+	
+		return pattern;
+	},
+	
+	createMovieClip : function(target_mc, instance_name, depth) {
+	
+		var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+		var cs = 1;
+	
+		this.make();
+
+		for (var row = 0; row < this.modules.length; row++) {
+			
+			var y = row * cs;
+			
+			for (var col = 0; col < this.modules[row].length; col++) {
+	
+				var x = col * cs;
+				var dark = this.modules[row][col];
+			
+				if (dark) {
+					qr_mc.beginFill(0, 100);
+					qr_mc.moveTo(x, y);
+					qr_mc.lineTo(x + cs, y);
+					qr_mc.lineTo(x + cs, y + cs);
+					qr_mc.lineTo(x, y + cs);
+					qr_mc.endFill();
+				}
+			}
+		}
+		
+		return qr_mc;
+	},
+
+	setupTimingPattern : function() {
+		
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+	
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	
+	setupPositionAdjustPattern : function() {
+	
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		
+		for (var i = 0; i < pos.length; i++) {
+		
+			for (var j = 0; j < pos.length; j++) {
+			
+				var row = pos[i];
+				var col = pos[j];
+				
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				
+				for (var r = -2; r <= 2; r++) {
+				
+					for (var c = -2; c <= 2; c++) {
+					
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	setupTypeNumber : function(test) {
+	
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+	
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+	
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	
+	setupTypeInfo : function(test, maskPattern) {
+	
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+	
+		// vertical		
+		for (var v = 0; v < 15; v++) {
+	
+			mod = (!test && ( (bits >> v) & 1) === 1);
+	
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+	
+		// horizontal
+		for (var h = 0; h < 15; h++) {
+	
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+	
+		// fixed module
+		this.modules[this.moduleCount - 8][8] = (!test);
+	
+	},
+	
+	mapData : function(data, maskPattern) {
+		
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+	
+			if (col === 6) col--;
+	
+			while (true) {
+	
+				for (var c = 0; c < 2; c++) {
+					
+					if (this.modules[row][col - c] === null) {
+						
+						var dark = false;
+	
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+	
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+	
+						if (mask) {
+							dark = !dark;
+						}
+						
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+	
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+								
+				row += inc;
+	
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+		
+	}
+
+};
+
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	
+	var buffer = new QRBitBuffer();
+	
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+
+	// calc num max data.
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+
+	// end code
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+
+	// padding
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+
+	// padding
+	while (true) {
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+
+QRCode.createBytes = function(buffer, rsBlocks) {
+
+	var offset = 0;
+	
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	
+	for (var r = 0; r < rsBlocks.length; r++) {
+
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		
+		dcdata[r] = new Array(dcCount);
+		
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+
+	}
+	
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+
+	var data = new Array(totalCodeCount);
+	var index = 0;
+
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+
+	return data;
+
+};
+
+module.exports = QRCode;
+
+};
+var QRCode=req("index");var NIVEL=req("QRErrorCorrectLevel");return {QRCode:QRCode,NIVEL:NIVEL};})();
+</script>
+<script>
+(function () {
+  'use strict';
+  const $ = (s, el) => (el || document).querySelector(s);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const semAcento = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const toast = (t) => { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); };
+
+  const ONDE = {
+    termux: '📱 Termux (celular)',
+    windows: '🪟 Windows (CMD/PowerShell)',
+    linux: '🐧 Linux (Terminal)',
+    adb: '🔌 Computador + celular no cabo (ADB)',
+    qualquer: '💻 Qualquer terminal',
+    outro: '🧭 Instrução / outro',
+  };
+  const PERIGO = /\brm\s+-[a-z]*[rf]|\bformat\b|\bmkfs|\bdel\s+\/[sqf]|\brmdir\s+\/s|\brd\s+\/s|drop\s+(table|database)|\btruncate\s+table|\bdd\s+if=|fastboot\s+(flash|erase|oem\s+unlock|flashing\s+unlock|-w)|>\s*\/dev\/(sd|block)|pm\s+uninstall|reset\s+--hard|\bdiskpart\b/im;
+
+  // ── guardar ──
+  const CHAVE = 'colecionador:v1';
+  const ler = () => { try { return JSON.parse(localStorage.getItem(CHAVE)); } catch (e) { return null; } };
+  let dados = ler() || { itens: semente(), ultimoExport: 0, mudou: false };
+  function salvar(mudou) { if (mudou !== false) dados.mudou = true; try { localStorage.setItem(CHAVE, JSON.stringify(dados)); } catch (e) { toast('⚠️ Não consegui guardar neste navegador. Use 💾 Guardar cópia.'); } }
+
+  // ── copiar ──
+  async function copiar(t) {
+    try { await navigator.clipboard.writeText(t); toast('Copiado ✓ Agora é só colar.'); return; } catch (e) {}
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast('Copiado ✓'); } catch (e) { prompt('Copie:', t); } ta.remove();
+  }
+
+  // ── adivinhar onde roda ──
+  function adivinhar(cmd, lang) {
+    const c = String(cmd), l = String(lang || '').toLowerCase();
+    if (/^\s*(adb|fastboot)\b/m.test(c)) return 'adb';
+    if (/\b(pkg|termux-[a-z-]+)\b|~\/storage|com\.termux/.test(c)) return 'termux';
+    if (/^(powershell|ps1|bat|cmd|batch)$/.test(l) || /[A-Z]:\\|\.exe\b|\bwinget\b|\bdir\s|\bcopy\s|\brobocopy\b|\$env:|Get-[A-Z]/.test(c)) return 'windows';
+    if (/\bsudo\b|\bapt(-get)?\s|\bsystemctl\b|\.sh\b|\|\s*sh\b|\bchmod\b/.test(c)) return 'linux';
+    if (/^(bash|sh|shell|zsh|console|terminal)$/.test(l) || /\b(npm|npx|node|git|python3?|pip|ollama|curl)\b/.test(c)) return 'qualquer';
+    return 'qualquer';
+  }
+
+  // ── mostrar ──
+  let filtro = 'todos';
+  function desenharFiltros() {
+    const n = (k) => dados.itens.filter((i) => k === 'fav' ? i.fav : i.onde === k).length;
+    const ops = [['todos', '📚 Todos (' + dados.itens.length + ')'], ['fav', '⭐ Favoritos (' + n('fav') + ')']].concat(Object.keys(ONDE).filter((k) => n(k)).map((k) => [k, ONDE[k] + ' (' + n(k) + ')']));
+    $('#filtros').innerHTML = ops.map(([k, t]) => '<button data-f="' + k + '" class="' + (filtro === k ? 'on' : '') + '">' + esc(t) + '</button>').join('');
+  }
+  function desenhar() {
+    desenharFiltros();
+    const q = semAcento($('#q').value.trim());
+    let l = dados.itens.slice();
+    if (filtro === 'fav') l = l.filter((i) => i.fav); else if (filtro !== 'todos') l = l.filter((i) => i.onde === filtro);
+    if (q) l = l.filter((i) => q.split(/\s+/).every((p) => semAcento([i.titulo, i.explicacao, (i.tags || []).join(' '), i.passos.map((x) => x.explica + ' ' + x.cmd).join(' ')].join(' ')).includes(p)));
+    l.sort((a, b) => (b.fav - a.fav) || (b.usado || 0) - (a.usado || 0) || b.criado - a.criado);
+    $('#conta').textContent = dados.itens.length + ' guardados';
+    $('#lista').innerHTML = l.length ? l.map(cartao).join('') : '<div class="vazio">' + (q ? 'Nada achado para “' + esc($('#q').value) + '”.' : 'Nada aqui ainda. Toque em 📥 Colar resposta da IA.') + '</div>';
+    lembrete();
+  }
+  function cartao(i) {
+    const perigoso = i.passos.some((p) => PERIGO.test(p.cmd));
+    return '<div class="item" data-id="' + i.id + '"><h3><span class="t">' + esc(i.titulo) + '</span><span class="selo">' + esc(ONDE[i.onde] || ONDE.outro) + '</span></h3>' +
+      (i.explicacao ? '<div class="exp">' + esc(i.explicacao) + '</div>' : '') +
+      (perigoso ? '<div class="perigo">⚠️ Tem comando que <b>apaga ou muda coisas importantes</b>. Leia com calma antes de rodar.</div>' : '') +
+      i.passos.map((p, k) => '<div class="passo">' + (p.explica ? '<div><span class="n">' + (i.passos.length > 1 ? (k + 1) + '.' : '') + '</span>' + esc(p.explica) + '</div>' : '') +
+        (p.cmd ? '<div class="cmd"><pre>' + esc(p.cmd) + '</pre><button data-copiar="' + k + '">Copiar</button></div>' : '') + '</div>').join('') +
+      ((i.tags || []).length ? '<div class="mut">🏷️ ' + i.tags.map(esc).join(', ') + '</div>' : '') +
+      '<div class="rodape-item">' +
+      (i.passos.filter((p) => p.cmd).length > 1 ? '<button class="bt mini" data-a="tudo">📋 Copiar todos</button>' : '') +
+      '<button class="bt mini" data-a="fav">' + (i.fav ? '⭐ Favorito' : '☆ Favoritar') + '</button>' +
+      '<button class="bt mini" data-a="qr">📱 QR</button><button class="bt mini" data-a="enviar">📤 Enviar</button>' +
+      '<button class="bt mini" data-a="editar">✏️ Editar</button><button class="bt mini" data-a="apagar">🗑️</button></div></div>';
+  }
+  function lembrete() {
+    const dias = (Date.now() - (dados.ultimoExport || 0)) / 864e5;
+    $('#lembrete').innerHTML = dados.mudou && dias > 7 ? '<div class="aviso">💾 Faz tempo que você não guarda uma cópia. Toque em <b>💾 Guardar cópia</b> e salve o arquivo no HD ou no outro celular. Se o navegador for limpo, é a cópia que salva tudo.</div>' : '';
+  }
+
+  document.addEventListener('click', (e) => {
+    const f = e.target.closest('[data-f]'); if (f) { filtro = f.dataset.f; desenhar(); return; }
+    const card = e.target.closest('.item'); if (!card) return;
+    const it = dados.itens.find((x) => x.id === card.dataset.id); if (!it) return;
+    const c = e.target.closest('[data-copiar]');
+    if (c) { copiar(it.passos[+c.dataset.copiar].cmd); it.usado = Date.now(); salvar(false); return; }
+    const a = e.target.closest('[data-a]'); if (!a) return;
+    const ac = a.dataset.a;
+    if (ac === 'tudo') { copiar(it.passos.filter((p) => p.cmd).map((p) => p.cmd).join('\n')); it.usado = Date.now(); salvar(false); }
+    if (ac === 'fav') { it.fav = !it.fav; salvar(); desenhar(); }
+    if (ac === 'editar') abrirEditor(it);
+    if (ac === 'apagar' && confirm('Apagar “' + it.titulo + '” da coleção?')) { dados.itens = dados.itens.filter((x) => x !== it); salvar(); desenhar(); toast('Apagado.'); }
+    if (ac === 'qr') abrirQR(it);
+    if (ac === 'enviar') { const t = textoDoItem(it, true); if (navigator.share) navigator.share({ title: it.titulo, text: t }).catch(() => {}); else copiar(t); }
+  });
+  function textoDoItem(it, comExp) {
+    let t = '# ' + it.titulo + '\n' + (comExp && it.explicacao ? it.explicacao + '\n' : '');
+    it.passos.forEach((p, k) => { if (comExp && p.explica) t += '\n' + (it.passos.length > 1 ? (k + 1) + '. ' : '') + p.explica + '\n'; if (p.cmd) t += '```\n' + p.cmd + '\n```\n'; });
+    return t;
+  }
+
+  // ── editor ──
+  let editando = null;
+  $('#ed-onde').innerHTML = Object.entries(ONDE).map(([k, v]) => '<option value="' + k + '">' + v + '</option>').join('');
+  function passoEd(p, k) {
+    return '<div class="passo-ed" data-k="' + k + '"><div class="campo"><label>Passo ' + (k + 1) + ': o que faz</label><input class="pe-exp" value="' + esc(p.explica) + '" placeholder="ex.: Libera o Termux a ver os arquivos"></div>' +
+      '<div class="campo"><label>Comando (pode ter várias linhas)</label><textarea class="pe-cmd mono" rows="3" spellcheck="false" autocapitalize="off" placeholder="ex.: termux-setup-storage">' + esc(p.cmd) + '</textarea></div>' +
+      '<button class="bt mini" type="button" data-tirar-passo="' + k + '">✕ tirar este passo</button></div>';
+  }
+  function lerPassosEd() { return Array.from(document.querySelectorAll('#ed-passos .passo-ed')).map((d) => ({ explica: $('.pe-exp', d).value.trim(), cmd: $('.pe-cmd', d).value.replace(/\s+$/, '') })); }
+  function abrirEditor(it) {
+    editando = it || null;
+    const x = it || { titulo: '', onde: 'qualquer', explicacao: '', passos: [{ explica: '', cmd: '' }], tags: [] };
+    $('#ed-titulo-dlg').textContent = it ? '✏️ Editar' : '＋ Novo comando';
+    $('#ed-titulo').value = x.titulo; $('#ed-onde').value = x.onde; $('#ed-exp').value = x.explicacao || ''; $('#ed-tags').value = (x.tags || []).join(', ');
+    $('#ed-passos').innerHTML = x.passos.map(passoEd).join('');
+    $('#dlg-ed').showModal();
+  }
+  $('#ed-mais').onclick = () => { const ps = lerPassosEd(); ps.push({ explica: '', cmd: '' }); $('#ed-passos').innerHTML = ps.map(passoEd).join(''); };
+  $('#ed-passos').addEventListener('click', (e) => { const b = e.target.closest('[data-tirar-passo]'); if (!b) return; const ps = lerPassosEd(); ps.splice(+b.dataset.tirarPasso, 1); if (!ps.length) ps.push({ explica: '', cmd: '' }); $('#ed-passos').innerHTML = ps.map(passoEd).join(''); });
+  $('#ed-cancelar').onclick = () => $('#dlg-ed').close();
+  $('#ed-salvar').onclick = () => {
+    const passos = lerPassosEd().filter((p) => p.explica || p.cmd);
+    const titulo = $('#ed-titulo').value.trim() || (passos[0] && (passos[0].explica || passos[0].cmd.split('\n')[0]).slice(0, 60)) || '';
+    if (!titulo || !passos.length) return toast('Coloque pelo menos um nome e um comando.');
+    const v = { titulo, onde: $('#ed-onde').value, explicacao: $('#ed-exp').value.trim(), passos, tags: $('#ed-tags').value.split(',').map((s) => s.trim()).filter(Boolean) };
+    if (editando) Object.assign(editando, v); else dados.itens.push(Object.assign({ id: uid(), criado: Date.now(), fav: false }, v));
+    salvar(); $('#dlg-ed').close(); desenhar(); toast('Guardado ✓');
+  };
+  $('#b-novo').onclick = () => abrirEditor(null);
+
+  // ── colar da IA: separa os comandos ──
+  function limparMd(s) { return s.replace(/\*\*|__|`/g, '').replace(/^\s*(#+|[-*•]|\d+[.)])\s*/gm, '').replace(/\s+/g, ' ').trim(); }
+  function separar(txt) {
+    const linhas = txt.replace(/\r/g, '').split('\n');
+    const achados = []; let i = 0, ultimoTitulo = '', paragrafo = [];
+    const fecharPar = () => { };
+    while (i < linhas.length) {
+      const ln = linhas[i];
+      const ab = ln.match(/^\s*(```+|~~~+)\s*([\w+-]*)/);
+      if (ab) {
+        const cerca = ab[1], lang = ab[2]; const corpo = []; i++;
+        while (i < linhas.length && !linhas[i].trim().startsWith(cerca.slice(0, 3))) { corpo.push(linhas[i]); i++; }
+        i++;
+        let cmd = corpo.join('\n').replace(/^\n+|\s+$/g, '');
+        cmd = cmd.split('\n').map((l) => l.replace(/^\s*\$ /, '')).join('\n');
+        if (cmd) {
+          const par = paragrafo.filter((x) => x.trim()).slice(-3).map(limparMd).join(' ');
+          achados.push({ explica: par.slice(0, 400), cmd, lang, titulo: ultimoTitulo });
+        }
+        paragrafo = []; continue;
+      }
+      const h = ln.match(/^\s*#{1,6}\s+(.+)/) || ln.match(/^\s*\*\*(.+?)\*\*\s*:?\s*$/);
+      if (h) { ultimoTitulo = limparMd(h[1]).slice(0, 80); paragrafo = []; }
+      else if (!ln.trim()) { if (paragrafo.length && paragrafo[paragrafo.length - 1] !== '') paragrafo.push(''); }
+      else { const ini = ln.match(/^\s*\$\s+(.+)/); if (ini) achados.push({ explica: limparMd(paragrafo.join(' ')).slice(0, 400), cmd: ini[1], lang: 'sh', titulo: ultimoTitulo }); else paragrafo.push(ln); }
+      if (paragrafo.length > 12) paragrafo = paragrafo.slice(-6);
+      i++;
+    }
+    return achados;
+  }
+  let extraidos = [];
+  $('#b-colar').onclick = () => { $('#colar-res').innerHTML = ''; $('#dlg-colar').showModal(); };
+  $('#colar-fechar').onclick = () => $('#dlg-colar').close();
+  $('#colar-area').onclick = async () => { try { $('#colar-txt').value = await navigator.clipboard.readText(); toast('Colado.'); } catch (e) { $('#colar-txt').focus(); toast('Toque e segure na caixa → Colar.'); } };
+  $('#colar-separar').onclick = () => {
+    const txt = $('#colar-txt').value;
+    extraidos = separar(txt).map((x) => Object.assign(x, { usar: true, onde: adivinhar(x.cmd, x.lang), nome: (x.titulo || x.explica.split(/[.:!?]/)[0] || x.cmd.split('\n')[0]).slice(0, 70) }));
+    if (!extraidos.length) { $('#colar-res').innerHTML = '<div class="aviso">Não achei nenhum comando. Os comandos costumam vir dentro de uma caixa de código. Se a sua resposta não tem caixa, use <b>＋ Novo</b> e cole o comando lá.</div>'; return; }
+    desenharExtraidos();
+  };
+  function desenharExtraidos() {
+    $('#colar-res').innerHTML = '<div class="ok">Achei <b>' + extraidos.length + '</b> comando(s). Confira os nomes e toque em Guardar.</div>' +
+      extraidos.map((x, k) => '<div class="extraido' + (x.usar ? '' : ' off') + '" data-k="' + k + '"><label class="mut" style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-usar ' + (x.usar ? 'checked' : '') + '> guardar este</label>' +
+        '<div class="campo"><label>Nome</label><input data-nome value="' + esc(x.nome) + '"></div>' +
+        '<div class="campo"><label>Onde roda</label><select data-onde>' + Object.entries(ONDE).map(([kk, v]) => '<option value="' + kk + '"' + (kk === x.onde ? ' selected' : '') + '>' + v + '</option>').join('') + '</select></div>' +
+        (x.explica ? '<div class="exp">' + esc(x.explica) + '</div>' : '') + '<div class="cmd"><pre>' + esc(x.cmd) + '</pre></div>' + (PERIGO.test(x.cmd) ? '<div class="perigo">⚠️ Este apaga ou muda coisas importantes.</div>' : '') + '</div>').join('') +
+      (extraidos.length > 1 ? '<label class="ok" style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="juntar"> 🧾 Juntar todos numa <b>receita</b> só (passos em ordem: 1, 2, 3…)</label><div class="campo" id="cx-nome-receita" hidden><label>Nome da receita</label><input id="nome-receita" value="' + esc(extraidos[0].titulo || 'Receita de ' + new Date().toLocaleDateString('pt-BR')) + '"></div>' : '') +
+      '<button class="bt az" id="colar-guardar" type="button" style="width:100%;margin-top:6px">✅ Guardar na coleção</button>';
+    const j = $('#juntar'); if (j) j.onchange = () => { $('#cx-nome-receita').hidden = !j.checked; };
+    $('#colar-guardar').onclick = guardarExtraidos;
+  }
+  $('#colar-res').addEventListener('input', (e) => {
+    const d = e.target.closest('.extraido'); if (!d) return; const x = extraidos[+d.dataset.k];
+    if (e.target.matches('[data-nome]')) x.nome = e.target.value;
+    if (e.target.matches('[data-onde]')) x.onde = e.target.value;
+  });
+  $('#colar-res').addEventListener('change', (e) => {
+    const d = e.target.closest('.extraido'); if (!d) return; const x = extraidos[+d.dataset.k];
+    if (e.target.matches('[data-usar]')) { x.usar = e.target.checked; d.classList.toggle('off', !x.usar); }
+    if (e.target.matches('[data-onde]')) x.onde = e.target.value;
+  });
+  function guardarExtraidos() {
+    const sel = extraidos.filter((x) => x.usar); if (!sel.length) return toast('Marque pelo menos um.');
+    const hoje = 'Colado em ' + new Date().toLocaleDateString('pt-BR');
+    if ($('#juntar') && $('#juntar').checked) {
+      const ondes = [...new Set(sel.map((x) => x.onde))];
+      dados.itens.push({ id: uid(), criado: Date.now(), fav: false, titulo: $('#nome-receita').value.trim() || hoje, onde: ondes.length === 1 ? ondes[0] : 'qualquer', explicacao: hoje + '. Faça os passos na ordem.', tags: ['receita'], passos: sel.map((x) => ({ explica: x.explica || x.nome, cmd: x.cmd })) });
+    } else {
+      sel.forEach((x, k) => dados.itens.push({ id: uid(), criado: Date.now() + k, fav: false, titulo: x.nome, onde: x.onde, explicacao: '', tags: [], passos: [{ explica: x.explica, cmd: x.cmd }] }));
+    }
+    salvar(); $('#dlg-colar').close(); $('#colar-txt').value = ''; filtro = 'todos'; $('#q').value = ''; desenhar(); toast('Guardado ✓ (' + sel.length + ')');
+  }
+
+  // ── QR (passar para outro aparelho sem internet) ──
+  let qrPartes = [], qrI = 0, qrItem = null;
+  function abrirQR(it) { qrItem = it; $('#qr-exp').checked = false; montarQR(); $('#dlg-qr').showModal(); }
+  function montarQR() {
+    const t = $('#qr-exp').checked ? textoDoItem(qrItem, true) : qrItem.passos.filter((p) => p.cmd).map((p) => p.cmd).join('\n');
+    const LIM = 1000; qrPartes = [];
+    const bytes = unescape(encodeURIComponent(t));
+    if (bytes.length <= LIM) qrPartes = [t];
+    else { let atual = ''; for (const ch of Array.from(t)) { if (unescape(encodeURIComponent(atual + ch)).length > LIM - 12) { qrPartes.push(atual); atual = ''; } atual += ch; } if (atual) qrPartes.push(atual); qrPartes = qrPartes.map((p, k) => '(' + (k + 1) + '/' + qrPartes.length + ') ' + p); }
+    qrI = 0; pintarQR();
+  }
+  function pintarQR() {
+    const q = new QRLib.QRCode(-1, QRLib.NIVEL.M); q.addData(unescape(encodeURIComponent(qrPartes[qrI]))); q.make();
+    const n = q.getModuleCount(), m = 4, tam = 8, cv = $('#qr-canvas'); cv.width = cv.height = (n + m * 2) * tam;
+    const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.fillStyle = '#000';
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) cx.fillRect((c + m) * tam, (r + m) * tam, tam, tam);
+    $('#qr-titulo').textContent = '📱 ' + qrItem.titulo;
+    $('#qr-parte').textContent = qrPartes.length > 1 ? 'Parte ' + (qrI + 1) + ' de ' + qrPartes.length + ' (é grande: passe uma por uma com ▶)' : '';
+    $('#qr-ant').disabled = qrI === 0; $('#qr-prox').disabled = qrI >= qrPartes.length - 1;
+  }
+  $('#qr-ant').onclick = () => { if (qrI > 0) { qrI--; pintarQR(); } };
+  $('#qr-prox').onclick = () => { if (qrI < qrPartes.length - 1) { qrI++; pintarQR(); } };
+  $('#qr-exp').onchange = montarQR;
+  $('#qr-fechar').onclick = () => $('#dlg-qr').close();
+
+  // ── cópia de segurança (arquivo) ──
+  $('#b-exportar').onclick = () => {
+    const nome = 'colecao-comandos-' + new Date().toISOString().slice(0, 10) + '.json';
+    const blob = new Blob([JSON.stringify({ app: 'colecionador-de-comandos', versao: 1, data: new Date().toISOString(), itens: dados.itens }, null, 1)], { type: 'application/json' });
+    const arq = new File([blob], nome, { type: 'application/json' });
+    const baixar = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click(); a.remove(); };
+    if (navigator.canShare && navigator.canShare({ files: [arq] }) && confirm('Quer ENVIAR a cópia (WhatsApp, Bluetooth, outro app)?\n\nOK = enviar · Cancelar = só baixar o arquivo')) navigator.share({ files: [arq], title: 'Coleção de comandos' }).catch(baixar);
+    else baixar();
+    dados.ultimoExport = Date.now(); dados.mudou = false; salvar(false); lembrete();
+  };
+  $('#b-importar').onclick = () => $('#arq').click();
+  $('#arq').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return; e.target.value = '';
+    try {
+      const j = JSON.parse(await f.text()); const novos = Array.isArray(j) ? j : j.itens; if (!Array.isArray(novos)) throw new Error('arquivo diferente');
+      const chave = (i) => i.titulo + '|' + i.passos.map((p) => p.cmd).join('|');
+      const tem = new Set(dados.itens.map(chave)); let n = 0;
+      novos.forEach((i) => { if (i && i.passos && !tem.has(chave(i))) { dados.itens.push(Object.assign({}, i, { id: uid() })); n++; } });
+      salvar(); desenhar(); toast(n ? n + ' comando(s) novos juntados ✓' : 'Nada novo: você já tinha todos.');
+    } catch (x) { alert('Não consegui abrir: ' + x.message + '\n\nUse o arquivo .json criado pelo 💾 Guardar cópia.'); }
+  };
+
+  // ── voz (ditado) para procurar e dar nome ──
+  function ditar(campo) {
+    const R = window.SpeechRecognition || window.webkitSpeechRecognition; if (!R) return toast('Este navegador não tem ditado. Use o 🎤 do teclado.');
+    const r = new R(); r.lang = 'pt-BR'; r.interimResults = false;
+    r.onresult = (e) => { campo.value = e.results[0][0].transcript; campo.dispatchEvent(new Event('input')); }; r.onerror = () => toast('Não ouvi. Tente de novo.'); r.start(); toast('🎤 Pode falar…');
+  }
+  $('#mic-q').onclick = () => ditar($('#q'));
+  document.addEventListener('click', (e) => { const b = e.target.closest('[data-mic]'); if (b) ditar(document.getElementById(b.dataset.mic)); });
+  $('#q').addEventListener('input', desenhar);
+
+  // ── comandos que já vêm guardados (os de hoje) ──
+  function semente() {
+    const t = Date.now(); let k = 0;
+    const i = (titulo, onde, explicacao, passos, tags) => ({ id: 'base' + (k++), criado: t - k * 1000, fav: false, titulo, onde, explicacao, passos, tags: tags || [] });
+    return [
+      i('Instalar o botão de backup no Termux', 'termux', 'Uma vez só, em cada celular. Antes, salve o backup.py na pasta Download.', [
+        { explica: 'Deixa o Termux ver os arquivos do celular (toque em PERMITIR).', cmd: 'termux-setup-storage' },
+        { explica: 'Instala o Python, copia o backup.py e cria as palavras "backup" e "backupteste".', cmd: "pkg install -y python && cp ~/storage/shared/Download/backup.py ~/ && echo \"alias backup='python ~/backup.py'\" >> ~/.bashrc && echo \"alias backupteste='python ~/backup.py teste'\" >> ~/.bashrc && source ~/.bashrc" },
+      ], ['backup', 'celular']),
+      i('Fazer backup do celular (pelo Wi-Fi)', 'termux', 'Abre a página com os botões. No computador (mesmo Wi-Fi), abra o endereço que aparecer.', [
+        { explica: 'Backup de verdade:', cmd: 'backup' }, { explica: 'Só a pasta de teste (TesteBackup):', cmd: 'backupteste' },
+      ], ['backup', 'celular', 'hd']),
+      i('Atualizar o backup.py (versão nova)', 'termux', 'Depois de salvar o backup.py novo na pasta Download.', [{ explica: '', cmd: 'cp ~/storage/shared/Download/backup.py ~/' }], ['backup']),
+      i('Termux não dormir no meio', 'termux', 'Impede o Android de fechar o Termux enquanto trabalha (backup, ponte).', [{ explica: 'Ligar:', cmd: 'termux-wake-lock' }, { explica: 'Desligar:', cmd: 'termux-wake-unlock' }], ['termux']),
+      i('Ver se o computador enxerga o celular', 'adb', 'Celular no cabo, com Depuração USB ligada. Tem que aparecer "device". Se aparecer "unauthorized", toque em Permitir no celular.', [{ explica: '', cmd: 'adb devices' }], ['adb']),
+      i('Instalar um app pelo cabo (sem o Google barrar)', 'adb', 'Coloque o .apk na pasta do adb. "Success" = instalado.', [{ explica: 'Instalar:', cmd: 'adb install nome.apk' }, { explica: 'Atualizar um que já existe:', cmd: 'adb install -r nome.apk' }], ['adb', 'apk', 'google']),
+      i('Copiar o celular INTEIRO para o HD (pelo cabo)', 'adb', 'Troque E: pela letra do seu HD em "Este Computador". Funciona mesmo se o celular não aparecer no Windows.', [{ explica: '', cmd: 'adb pull /sdcard/ "E:\\Backup celular"' }], ['backup', 'hd', 'adb']),
+      i('Devolver peças do sistema que foram desinstaladas', 'adb', 'Traz de volta (sem apagar nada) o app Arquivos, USB/MTP e mídia. Use se o HD ou o cabo pararam de funcionar.', [
+        { explica: 'App Arquivos:', cmd: 'adb shell cmd package install-existing com.google.android.documentsui' },
+        { explica: 'Armazenamento externo (HD/pendrive):', cmd: 'adb shell cmd package install-existing com.android.externalstorage' },
+        { explica: 'Transferência pelo cabo (MTP):', cmd: 'adb shell cmd package install-existing com.android.mtp' },
+        { explica: 'Mídia (fotos e vídeos):', cmd: 'adb shell cmd package install-existing com.google.android.providers.media.module' },
+      ], ['adb', 'conserto', 'hd']),
+      i('Desativar / reativar um app do Google', 'adb', 'Desativar não apaga: dá para ligar de volta. Troque o nome do app.', [
+        { explica: 'Ver a lista dos apps do Google:', cmd: 'adb shell pm list packages google' },
+        { explica: 'Desativar (exemplo: YouTube):', cmd: 'adb shell pm disable-user --user 0 com.google.android.youtube' },
+        { explica: 'Ligar de volta:', cmd: 'adb shell pm enable com.google.android.youtube' },
+      ], ['adb', 'google']),
+      i('Instalar o ADB no Linux', 'linux', '', [{ explica: '', cmd: 'sudo apt install adb' }], ['adb', 'linux']),
+      i('Instalar o Ollama (IA no computador) no Linux', 'linux', 'No Linux ele já fica ligado sozinho.', [{ explica: 'Instalar:', cmd: 'curl -fsSL https://ollama.com/install.sh | sh' }, { explica: 'Baixar um modelo que fala português:', cmd: 'ollama pull qwen2.5:3b' }], ['ollama', 'ia']),
+      i('Ollama no celular aceitar o app 🤖 IA', 'termux', 'Liga o Ollama no Termux deixando as páginas (Mini SK, jurídico) conversarem com ele.', [{ explica: '', cmd: 'OLLAMA_ORIGINS="*" ollama serve' }], ['ollama', 'ia']),
+      i('Abrir o terminal numa pasta do Windows', 'windows', 'Abra a pasta, clique na barra de endereço lá em cima, apague o que tem, digite isto e aperte Enter.', [{ explica: '', cmd: 'cmd' }], ['windows']),
+    ];
+  }
+
+  desenhar();
+  window.__col = { separar, adivinhar, dados: () => dados };
+})();
+</script>
+</body>
+</html>

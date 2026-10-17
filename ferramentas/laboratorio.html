@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1b2433">
+  <title>Laboratório HTML</title>
+  <style>
+/* Laboratório HTML — visual. Celular primeiro; no computador, prévia e painel lado a lado. */
+:root { --bg:#f2f3f6; --papel:#fff; --fg:#1b2130; --mut:#5d6578; --linha:#d9dde5; --azul:#2a5bd7; --azul-claro:#e7eefc; --ok:#2f7a55; --ruim:#b3362b; }
+@media (prefers-color-scheme: dark) { :root { --bg:#10141b; --papel:#18202b; --fg:#e8ebf1; --mut:#9aa4b6; --linha:#2b3442; --azul:#6f9bff; --azul-claro:#1b2740; --ok:#7fd3a6; --ruim:#f19a90; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui,"Segoe UI",Roboto,sans-serif; }
+button, input, select, textarea { font:inherit; color:inherit; }
+.topo { display:flex; gap:10px; align-items:center; padding:10px 14px; background:#1b2433; color:#fff; position:sticky; top:0; z-index:20; }
+.topo .mut { color:#aab4c6; }
+.abas { display:flex; gap:6px; padding:8px 10px; background:var(--papel); border-bottom:1px solid var(--linha); overflow-x:auto; position:sticky; top:44px; z-index:19; }
+.abas button { flex:none; border:1px solid var(--linha); background:var(--bg); border-radius:999px; padding:7px 14px; cursor:pointer; }
+.abas button.ativa { background:var(--azul); color:#fff; border-color:var(--azul); }
+main { padding:10px; max-width:1400px; margin:0 auto; }
+.painel { display:none; } .painel.ativo { display:block; }
+.mut { color:var(--mut); } .peq { font-size:13px; }
+.bt { border:1px solid var(--linha); background:var(--papel); border-radius:8px; padding:8px 12px; cursor:pointer; min-height:40px; }
+.bt.forte { background:var(--azul); color:#fff; border-color:var(--azul); font-weight:600; }
+.bt.mini { min-height:32px; padding:4px 9px; font-size:14px; }
+.bt.ativo { background:var(--azul-claro); border-color:var(--azul); }
+.linha { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.cartao { background:var(--papel); border:1px solid var(--linha); border-radius:12px; padding:12px; margin-bottom:10px; }
+textarea, input[type=text] { width:100%; border:1px solid var(--linha); background:var(--papel); border-radius:8px; padding:8px 10px; }
+textarea.codigo { font:13px/1.5 ui-monospace,Consolas,monospace; min-height:220px; white-space:pre; tab-size:2; }
+/* inspetor */
+.insp { display:grid; gap:10px; grid-template-columns:minmax(0,1fr); }
+@media (min-width: 900px) { .insp { grid-template-columns:minmax(0,1.4fr) minmax(320px,1fr); align-items:start; } .insp .lado { position:sticky; top:100px; max-height:calc(100vh - 110px); overflow:auto; } }
+.moldura { background:#c8cdd6; border-radius:12px; padding:8px; display:flex; justify-content:center; }
+.moldura iframe { width:100%; height:62vh; border:0; border-radius:8px; background:#fff; transition:width .2s; }
+.moldura.celular iframe { width:390px; max-width:100%; }
+.quem { font-size:15px; }
+.quem code, .cod { font:13px ui-monospace,Consolas,monospace; background:var(--azul-claro); padding:1px 6px; border-radius:4px; }
+.ctl { display:grid; grid-template-columns:150px minmax(0,1fr) auto; gap:8px; align-items:center; padding:7px 0; border-top:1px solid var(--linha); }
+.ctl label { font-size:14px; }
+.ctl input[type=range] { width:100%; }
+.ctl .val { font:12px ui-monospace,monospace; color:var(--mut); min-width:52px; text-align:right; }
+.ctl .grupo { display:flex; gap:4px; flex-wrap:wrap; }
+.oque { font-size:12px; color:var(--mut); grid-column:1 / -1; margin-top:-4px; }
+details.secao { border-top:1px solid var(--linha); padding:6px 0; }
+details.secao > summary { cursor:pointer; font-weight:600; padding:4px 0; }
+pre.trecho { white-space:pre-wrap; word-break:break-all; font:12px/1.45 ui-monospace,monospace; background:var(--bg); border:1px solid var(--linha); border-radius:8px; padding:8px; max-height:220px; overflow:auto; }
+/* manual */
+.licoes { display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; }
+.licoes button { flex:none; }
+.licao h2 { margin:4px 0 8px; font-size:21px; }
+.licao .exp { line-height:1.6; }
+.licao .exp code { font:14px ui-monospace,monospace; background:var(--azul-claro); padding:1px 5px; border-radius:4px; }
+.duas { display:grid; gap:10px; grid-template-columns:minmax(0,1fr); }
+@media (min-width: 900px) { .duas { grid-template-columns:1fr 1fr; } }
+.duas iframe { width:100%; height:300px; border:1px solid var(--linha); border-radius:8px; background:#fff; }
+.dica { background:var(--azul-claro); border-left:4px solid var(--azul); border-radius:8px; padding:8px 12px; font-size:14px; margin:8px 0; }
+.avisos { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); display:grid; gap:6px; z-index:99; width:min(92vw,480px); }
+.aviso { background:#1b2130; color:#fff; padding:10px 14px; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.25); }
+.aviso.erro { background:#8f2a22; } .aviso.ok { background:#245f43; }
+.cresce { flex:1; min-width:0; }
+.ctl input[type=color] { width:52px; height:34px; padding:2px; border:1px solid var(--linha); border-radius:6px; background:none; }
+.ctl select { width:100%; border:1px solid var(--linha); border-radius:8px; padding:6px; background:var(--papel); }
+@media (max-width: 420px) { .ctl { grid-template-columns:1fr auto; } .ctl > div:not(.oque) { grid-column:1 / -1; grid-row:2; } }
+@media (min-width: 900px) { .so-cel { display:none; } }
+@media (max-width: 600px) { .barra-insp .bt { min-height:34px; padding:4px 9px; font-size:14px; } .barra-insp { padding:8px; } .moldura { padding:4px; } .moldura iframe { height:58vh; } }
+@media (max-width: 600px) { #ma-cod { white-space:pre-wrap; word-break:break-word; } }
+</style>
+</head>
+<body>
+  <header class="topo"><b>🧪 Laboratório HTML</b><span class="mut peq" id="versao"></span></header>
+  <nav class="abas" id="abas">
+    <button data-aba="inspetor" class="ativa">🔍 Mexer no visual</button>
+    <button data-aba="manual">📘 Aprender</button>
+    <button data-aba="codigo">📝 Código</button>
+  </nav>
+  <main>
+    <section class="painel ativo" id="painel-inspetor"></section>
+    <section class="painel" id="painel-manual"></section>
+    <section class="painel" id="painel-codigo"></section>
+  </main>
+  <div id="avisos" class="avisos"></div>
+  <!-- módulos NA ORDEM: 00 primeiro, 99 por último -->
+  <script>
+/* 00-core.js — A LOCOMOTIVA: cria o caixa comum L (vem primeiro).
+   L.$ (procurar na página), L.esc (texto seguro), L.aviso, L.pref (guardar no aparelho),
+   L.on/L.emit (um módulo avisa o outro), L.registrar (cada módulo se apresenta). */
+(function () {
+  'use strict';
+  const L = (window.L = { versao: '16/10-a', modulos: [] });
+  L.$ = (s, el) => (el || document).querySelector(s);
+  L.$$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+  L.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ouv = {};
+  L.on = (n, f) => (ouv[n] = ouv[n] || []).push(f);
+  L.emit = (n, d) => (ouv[n] || []).forEach((f) => { try { f(d); } catch (e) { console.error(e); } });
+  L.aviso = (t, tipo) => { const a = document.createElement('div'); a.className = 'aviso ' + (tipo || ''); a.textContent = t; L.$('#avisos').appendChild(a); setTimeout(() => a.remove(), tipo === 'erro' ? 5000 : 2600); };
+  L.pref = { get(k, d) { try { const v = localStorage.getItem('lab:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v) { try { localStorage.setItem('lab:' + k, JSON.stringify(v)); } catch {} } };
+  L.registrar = (m) => L.modulos.push(m);
+  L.abrirAba = (n) => { L.$$('#abas button').forEach((b) => b.classList.toggle('ativa', b.dataset.aba === n)); L.$$('.painel').forEach((p) => p.classList.toggle('ativo', p.id === 'painel-' + n)); L.emit('aba', n); window.scrollTo(0, 0); };
+  L.baixar = (nome, texto) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([texto], { type: 'text/html;charset=utf-8' })); a.download = nome; document.body.appendChild(a); a.click(); a.remove(); };
+  L.copiar = async (t) => { try { await navigator.clipboard.writeText(t); L.aviso('Copiado.', 'ok'); } catch { L.aviso('Não consegui copiar.', 'erro'); } };
+})();
+
+</script>
+  <script>
+/* 10-codigo.js — O CÓDIGO que você está estudando.
+   Guarda o código original e os AJUSTES que você faz tocando nas coisas.
+   Os ajustes viram um bloco <style id="ajustes-do-laboratorio"> dentro do código:
+   assim você vê exatamente qual CSS cada mudança criou, e o resto do código fica intacto. */
+(function (L) {
+  'use strict';
+  const MARCA = 'ajustes-do-laboratorio';
+  const EXEMPLO = `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meu escritório</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    header { background: #2c3e50; color: white; padding: 16px; }
+    .cartoes { padding: 16px; }
+    .cartao { background: white; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; }
+    .botao { background: #2980b9; color: white; border: 0; padding: 10px 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Advocacia Previdenciária</h1>
+    <p>Aposentadorias, BPC/LOAS e revisões do INSS</p>
+  </header>
+  <section class="cartoes">
+    <div class="cartao"><h2>Aposentadoria</h2><p>Por idade, por tempo e especial.</p></div>
+    <div class="cartao"><h2>BPC / LOAS</h2><p>Para idosos e pessoas com deficiência.</p></div>
+    <div class="cartao"><h2>Revisões</h2><p>Revisão da vida toda e outras.</p></div>
+  </section>
+  <p style="padding:16px"><button class="botao">Fale comigo no WhatsApp</button></p>
+</body>
+</html>`;
+  let original = L.pref.get('codigo', EXEMPLO);
+  let ajustes = {};      // { seletor: { propriedade: valor } }
+  let celular = {};      // ajustes só para tela pequena (celular)
+  const pilha = [];      // para ↶ Desfazer
+
+  // lê de volta um bloco de ajustes que já esteja no código
+  function separar(cod) {
+    const re = new RegExp('<style id="' + MARCA + '">([\\s\\S]*?)</style>\\s*', 'i');
+    const m = cod.match(re); ajustes = {}; celular = {};
+    if (!m) return cod;
+    const css = m[1];
+    const media = css.match(/@media \(max-width: 600px\) \{([\s\S]*)\}\s*$/);
+    const ler = (txt, alvo) => { const r = /([^{}]+)\{([^{}]*)\}/g; let x; while ((x = r.exec(txt))) { const sel = x[1].replace(/\/\*[\s\S]*?\*\//g, '').trim(); if (!sel || sel.startsWith('@')) continue; alvo[sel] = {}; x[2].split(';').forEach((d) => { const i = d.indexOf(':'); if (i > 0) alvo[sel][d.slice(0, i).trim()] = d.slice(i + 1).replace(/!important/, '').trim(); }); } };
+    ler(media ? css.slice(0, media.index) : css, ajustes); if (media) ler(media[1], celular);
+    return cod.replace(re, '');
+  }
+  original = separar(original);
+  function cssDosAjustes() {
+    const regra = (sel, o) => sel + ' { ' + Object.entries(o).map(([p, v]) => p + ': ' + v + ' !important;').join(' ') + ' }';
+    let s = Object.entries(ajustes).filter(([, o]) => Object.keys(o).length).map(([sel, o]) => regra(sel, o)).join('\n');
+    const cel = Object.entries(celular).filter(([, o]) => Object.keys(o).length);
+    if (cel.length) s += '\n@media (max-width: 600px) {\n' + cel.map(([sel, o]) => '  ' + regra(sel, o)).join('\n') + '\n}';
+    return s;
+  }
+  function completo() {
+    const css = cssDosAjustes();
+    if (!css) return original;
+    const bloco = '<style id="' + MARCA + '">\n/* Mudanças feitas no Laboratório (cada linha = um pedaço que você tocou) */\n' + css + '\n</style>\n';
+    if (/<\/head>/i.test(original)) return original.replace(/<\/head>/i, bloco + '</head>');
+    if (/<body[^>]*>/i.test(original)) return original.replace(/<body[^>]*>/i, (m) => m + '\n' + bloco);
+    return bloco + original;
+  }
+  function guardar() { L.pref.set('codigo', completo()); L.emit('codigo-mudou'); }
+
+  L.codigo = {
+    EXEMPLO,
+    get original() { return original; },
+    completo, cssDosAjustes,
+    trocar(cod) { pilha.length = 0; original = separar(String(cod || '')); guardar(); L.emit('codigo-novo'); },
+    ajustar(sel, prop, valor, soCelular) {
+      pilha.push(JSON.stringify([ajustes, celular])); if (pilha.length > 80) pilha.shift();
+      const alvo = soCelular ? celular : ajustes;
+      alvo[sel] = alvo[sel] || {};
+      if (valor === null || valor === '') delete alvo[sel][prop]; else alvo[sel][prop] = valor;
+      if (!Object.keys(alvo[sel]).length) delete alvo[sel];
+      guardar(); L.emit('ajustes', cssDosAjustes());
+    },
+    valor(sel, prop, soCelular) { const a = (soCelular ? celular : ajustes)[sel]; return a ? a[prop] : undefined; },
+    desfazer() { const v = pilha.pop(); if (!v) return false; [ajustes, celular] = JSON.parse(v); guardar(); L.emit('ajustes', cssDosAjustes()); return true; },
+    limparAjustes() { pilha.push(JSON.stringify([ajustes, celular])); ajustes = {}; celular = {}; guardar(); L.emit('ajustes', ''); },
+    // troca um pedaço do código original (ex.: o texto de um título). Só troca se achar UMA vez.
+    trocarTrecho(velho, novo) { const i = original.indexOf(velho); if (!velho || i < 0) return 'nao'; if (original.indexOf(velho, i + 1) >= 0) return 'varios'; original = original.slice(0, i) + novo + original.slice(i + velho.length); guardar(); L.emit('codigo-novo', { manterSelecao: true }); return 'ok'; },
+    lista() { const r = []; for (const [sel, o] of Object.entries(ajustes)) r.push({ sel, cel: false, props: o }); for (const [sel, o] of Object.entries(celular)) r.push({ sel, cel: true, props: o }); return r; },
+    apagarSel(sel, cel) { pilha.push(JSON.stringify([ajustes, celular])); delete (cel ? celular : ajustes)[sel]; guardar(); L.emit('ajustes', cssDosAjustes()); },
+    // "assar": as mudanças passam a fazer parte do código (some o bloco separado)
+    get temAjustes() { return !!cssDosAjustes(); },
+  };
+})(window.L);
+
+</script>
+  <script>
+/* 20-espiao.js — o "espião" que vai DENTRO da prévia.
+   Quando você toca num pedaço da página, ele marca o pedaço (contorno azul)
+   e conta para o laboratório: que etiqueta é, como chegar nele (seletor) e o estilo atual.
+   Ele nunca entra no código que você baixa. */
+(function (L) {
+  'use strict';
+  const ESPIAO = `(function(){
+  var ativo=true, atual=null;
+  var st=document.createElement('style'); st.setAttribute('data-lab','1');
+  st.textContent='.__lab_sel{outline:3px solid #2a7bff!important;outline-offset:2px!important}.__lab_hover{outline:2px dashed #ff2a9d!important;outline-offset:1px!important}';
+  (document.head||document.documentElement).appendChild(st);
+  function ok(id){return id && /^[A-Za-z][\\w-]*$/.test(id) && document.querySelectorAll('#'+id).length===1;}
+  function caminho(el){
+    if(ok(el.id)) return '#'+el.id;
+    var partes=[];
+    while(el && el.nodeType===1 && el!==document.documentElement){
+      if(el===document.body){partes.unshift('body');break;}
+      var tag=el.tagName.toLowerCase(), i=1, s=el; while((s=s.previousElementSibling)) if(s.tagName===el.tagName) i++;
+      var irmaos=el.parentElement?Array.prototype.filter.call(el.parentElement.children,function(c){return c.tagName===el.tagName;}).length:1;
+      partes.unshift(irmaos>1?tag+':nth-of-type('+i+')':tag);
+      el=el.parentElement;
+      if(el && ok(el.id)){partes.unshift('#'+el.id);break;}
+    }
+    return partes.join(' > ');
+  }
+  function limpo(h){return h.replace(/\\s*__lab_(sel|hover)/g,'').replace(/ class=""/g,'');}
+  function info(el){
+    var cs=getComputedStyle(el), r=el.getBoundingClientRect(), pai=el.parentElement;
+    return {sel:caminho(el), tag:el.tagName.toLowerCase(), id:el.id||'', cls:Array.prototype.filter.call(el.classList,function(c){return c.indexOf('__lab')!==0;}),
+      texto:(el.innerText||'').trim().slice(0,140), html:limpo(el.outerHTML).slice(0,900), filhos:el.children.length, w:Math.round(r.width), h:Math.round(r.height),
+      paiTag: pai && pai!==document.documentElement ? pai.tagName.toLowerCase() : '',
+      css:{color:cs.color, background:cs.backgroundColor, fontSize:cs.fontSize, fontWeight:cs.fontWeight, fontFamily:cs.fontFamily, textAlign:cs.textAlign, display:cs.display,
+        width:cs.width, height:cs.height, paddingTop:cs.paddingTop, marginTop:cs.marginTop, borderRadius:cs.borderTopLeftRadius, borderWidth:cs.borderTopWidth, gap:cs.gap, gridCols:cs.gridTemplateColumns, position:cs.position}};
+  }
+  function marcar(el){ if(atual) atual.classList.remove('__lab_sel'); atual=el; if(atual){ atual.classList.add('__lab_sel'); parent.postMessage({lab:'sel', info:info(atual)},'*'); } }
+  document.addEventListener('mouseover',function(e){ if(ativo && e.target.classList) e.target.classList.add('__lab_hover'); },true);
+  document.addEventListener('mouseout',function(e){ if(e.target.classList) e.target.classList.remove('__lab_hover'); },true);
+  document.addEventListener('click',function(e){ if(!ativo) return; e.preventDefault(); e.stopPropagation(); if(e.target.classList) e.target.classList.remove('__lab_hover'); marcar(e.target); },true);
+  document.addEventListener('submit',function(e){ if(ativo) e.preventDefault(); },true);
+  window.addEventListener('message',function(e){
+    var d=e.data||{};
+    if(d.lab==='ajustes'){ var s=document.getElementById('ajustes-do-laboratorio'); if(!s){ s=document.createElement('style'); s.id='ajustes-do-laboratorio'; document.head.appendChild(s);} s.textContent=d.css; if(atual) setTimeout(function(){ parent.postMessage({lab:'sel', info:info(atual)},'*'); },30); }
+    if(d.lab==='apontar'){ ativo=!!d.on; if(!ativo && atual){ atual.classList.remove('__lab_sel'); } }
+    if(d.lab==='pai' && atual && atual.parentElement && atual.parentElement!==document.documentElement) marcar(atual.parentElement);
+    if(d.lab==='filho' && atual && atual.firstElementChild) marcar(atual.firstElementChild);
+    if(d.lab==='achar'){ try{ var el=document.querySelector(d.sel); if(el){ marcar(el); el.scrollIntoView({block:'center'}); } }catch(x){} }
+  });
+  window.addEventListener('error',function(e){ parent.postMessage({lab:'erro', msg:e.message},'*'); });
+})();`;
+  // monta a página da prévia: o seu código + o espião no fim
+  function pagina(codigo, comEspiao) {
+    if (!comEspiao) return codigo;
+    const tag = '<script data-lab="1">' + ESPIAO + '<\/script>';
+    return /<\/body>/i.test(codigo) ? codigo.replace(/<\/body>(?![\s\S]*<\/body>)/i, tag + '</body>') : codigo + tag;
+  }
+  L.espiao = { pagina };
+})(window.L);
+
+</script>
+  <script>
+/* 30-inspetor.js — 🔍 MEXER NO VISUAL
+   Em cima (ou à esquerda no computador): a sua página funcionando.
+   Toque em qualquer pedaço → do lado aparece O QUE É e os controles para mudar
+   cor, tamanho, espaço, esconder, arrumar lado a lado / em grade, e o celular.
+   Cada controle diz o nome dele em CSS, para você ir aprendendo. */
+(function (L) {
+  'use strict';
+  let painel, frame, sel = null, info = null, apontar = true, soCel = false;
+  const $ = (s) => L.$(s, painel);
+
+  // ── dicionário: o que é cada etiqueta (tag), em português simples ──────────
+  const TAGS = {
+    html: ['A página inteira', 'A caixa que guarda tudo.'],
+    body: ['O corpo da página', 'Tudo o que aparece na tela fica dentro do <body>.'],
+    header: ['Cabeçalho', 'A parte de cima da página ou de um bloco (logo, título, menu).'],
+    nav: ['Menu de navegação', 'Um grupo de links para ir a outras partes.'],
+    main: ['Conteúdo principal', 'O miolo da página.'],
+    section: ['Seção', 'Um bloco que agrupa um assunto.'],
+    article: ['Artigo', 'Um bloco que faz sentido sozinho (uma notícia, um cartão).'],
+    aside: ['Lateral', 'Conteúdo de apoio, ao lado do principal.'],
+    footer: ['Rodapé', 'A parte de baixo (contato, direitos, endereço).'],
+    div: ['Caixa genérica (div)', 'Uma caixa sem significado especial, usada para agrupar e arrumar coisas. É a peça mais usada do HTML.'],
+    span: ['Pedacinho de texto (span)', 'Serve para pintar ou destacar só um trecho dentro de uma frase.'],
+    h1: ['Título principal (h1)', 'O título mais importante. Normalmente só um por página.'],
+    h2: ['Subtítulo (h2)', 'Título de uma seção.'], h3: ['Título menor (h3)', 'Título dentro de uma seção.'],
+    h4: ['Título pequeno (h4)', ''], h5: ['Título pequeno (h5)', ''], h6: ['Título bem pequeno (h6)', ''],
+    p: ['Parágrafo (p)', 'Um bloco de texto corrido.'],
+    a: ['Link (a)', 'Texto ou imagem que leva para outro endereço. O destino fica em href="…".'],
+    img: ['Imagem (img)', 'Uma figura. O arquivo fica em src="…" e a descrição em alt="…".'],
+    button: ['Botão (button)', 'Algo para tocar e fazer uma ação.'],
+    input: ['Campo de digitar (input)', 'Onde a pessoa escreve ou marca algo.'],
+    textarea: ['Caixa de texto grande (textarea)', 'Campo para escrever várias linhas.'],
+    select: ['Lista de escolha (select)', 'Menu que abre com opções.'], option: ['Opção (option)', 'Uma das escolhas do select.'],
+    label: ['Rótulo (label)', 'O nome que fica junto de um campo.'],
+    form: ['Formulário (form)', 'Agrupa campos e botão de enviar.'],
+    ul: ['Lista com bolinhas (ul)', 'Cada item fica num <li>.'], ol: ['Lista numerada (ol)', 'Cada item fica num <li>.'],
+    li: ['Item de lista (li)', 'Uma linha da lista.'],
+    table: ['Tabela (table)', 'Linhas <tr> e células <td>.'], thead: ['Cabeça da tabela', ''], tbody: ['Corpo da tabela', ''],
+    tr: ['Linha da tabela (tr)', ''], td: ['Célula da tabela (td)', ''], th: ['Célula de título da tabela (th)', ''],
+    strong: ['Texto forte (strong)', 'Negrito com importância.'], b: ['Negrito (b)', ''], em: ['Ênfase (em)', 'Itálico com ênfase.'], i: ['Itálico (i)', ''],
+    small: ['Texto pequeno (small)', ''], br: ['Quebra de linha (br)', ''], hr: ['Linha divisória (hr)', ''],
+    figure: ['Figura (figure)', 'Imagem com legenda.'], figcaption: ['Legenda (figcaption)', ''],
+    video: ['Vídeo', ''], audio: ['Áudio', ''], iframe: ['Janela para outra página (iframe)', ''],
+    details: ['Bloco que abre e fecha (details)', 'Toca no título <summary> e mostra/esconde o conteúdo.'], summary: ['Título do abre-e-fecha (summary)', ''],
+    blockquote: ['Citação (blockquote)', 'Trecho citado, recuado.'], code: ['Código (code)', ''], pre: ['Texto pré-formatado (pre)', 'Mantém os espaços e quebras como estão.'],
+    svg: ['Desenho vetorial (svg)', 'Ícones e desenhos que não perdem qualidade.'], canvas: ['Tela de desenho (canvas)', ''],
+  };
+  const quemE = (t) => TAGS[t] || ['Etiqueta <' + t + '>', ''];
+
+  // ── utilidades de cor ──────────────────────────────────────────────────────
+  function hex(c) {
+    const m = String(c || '').match(/rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)(?:[ ,/]+([\d.]+))?/);
+    if (!m) return /^#[0-9a-f]{6}$/i.test(c) ? c : '#000000';
+    return '#' + [m[1], m[2], m[3]].map((n) => (+n).toString(16).padStart(2, '0')).join('');
+  }
+  const transparente = (c) => /rgba\(.*,\s*0\)$/.test(c) || c === 'transparent';
+  const num = (v, d) => { const n = parseFloat(v); return isNaN(n) ? d : Math.round(n); };
+
+  // ── montar a tela ──────────────────────────────────────────────────────────
+  function montar(el) {
+    painel = el;
+    el.innerHTML =
+      '<div class="cartao linha barra-insp">' +
+      '  <button class="bt ativo" id="in-apontar" title="Ligado: tocar na página ESCOLHE o pedaço. Desligado: a página funciona normal (links, botões).">🎯 Escolher tocando: ligado</button>' +
+      '  <button class="bt" id="in-cel">📱 Ver como celular</button>' +
+      '  <button class="bt" id="in-desfazer">↶ Desfazer</button>' +
+      '  <button class="bt" id="in-abrir">📂 Abrir arquivo .html</button>' +
+      '  <button class="bt" id="in-colar">📋 Colar código</button>' +
+      '  <button class="bt" id="in-baixar">⬇ Baixar como ficou</button>' +
+      '  <input type="file" id="in-arq" accept=".html,.htm,text/html" hidden>' +
+      '</div>' +
+      '<div class="insp">' +
+      '  <div><div class="moldura" id="in-moldura"><iframe id="in-frame" title="Prévia da sua página" sandbox="allow-scripts allow-forms allow-modals"></iframe></div>' +
+      '    <p class="peq mut" style="margin:6px 4px">Contorno <b style="color:#ff2a9d">rosa tracejado</b> = onde o dedo/mouse está. Contorno <b style="color:#2a7bff">azul</b> = o pedaço escolhido.</p>' +
+      '    <div class="cartao" id="in-mudancas"></div></div>' +
+      '  <div class="lado cartao" id="in-lado"></div>' +
+      '</div>';
+    frame = $('#in-frame');
+    $('#in-apontar').onclick = () => { apontar = !apontar; pintarApontar(); enviar({ lab: 'apontar', on: apontar }); };
+    $('#in-cel').onclick = () => verCelular(!$('#in-moldura').classList.contains('celular'));
+    $('#in-desfazer').onclick = () => { if (!L.codigo.desfazer()) L.aviso('Nada para desfazer.'); else redesenharLado(); };
+    $('#in-abrir').onclick = () => $('#in-arq').click();
+    $('#in-arq').onchange = async (e) => { const f = e.target.files[0]; if (!f) return; L.codigo.trocar(await f.text()); sel = null; L.aviso('Aberto: ' + f.name, 'ok'); e.target.value = ''; };
+    $('#in-colar').onclick = colar;
+    $('#in-lado').addEventListener('click', cliqueLado);
+    $('#in-baixar').onclick = () => L.baixar('minha-pagina.html', L.codigo.completo());
+    window.addEventListener('message', receber);
+    frame.addEventListener('load', () => { enviar({ lab: 'apontar', on: apontar }); if (sel) enviar({ lab: 'achar', sel }); });
+    L.on('codigo-novo', (o) => { if (!(o && o.manterSelecao)) { sel = null; info = null; } carregar(); redesenharLado(); });
+    L.on('ajustes', (css) => { enviar({ lab: 'ajustes', css }); pintarMudancas(); });
+    verCelular(L.pref.get('verCelular', innerWidth < 700), true);
+    carregar(); redesenharLado();
+  }
+  function carregar() {
+    frame.srcdoc = L.espiao.pagina(L.codigo.completo(), true);
+    pintarMudancas();
+  }
+  const enviar = (msg) => { try { frame.contentWindow.postMessage(msg, '*'); } catch {} };
+  function pintarApontar() { const b = $('#in-apontar'); b.classList.toggle('ativo', apontar); b.textContent = apontar ? '🎯 Escolher tocando: ligado' : '🎯 Escolher tocando: desligado (página normal)'; }
+  function verCelular(on, silencio) {
+    $('#in-moldura').classList.toggle('celular', on);
+    $('#in-cel').textContent = on ? '💻 Ver como computador' : '📱 Ver como celular';
+    L.pref.set('verCelular', on);
+    if (!silencio) L.aviso(on ? 'Vendo do tamanho de um celular (390 pixels de largura).' : 'Vendo largo, como no computador.');
+  }
+  async function colar() {
+    let t = '';
+    try { t = await navigator.clipboard.readText(); } catch {}
+    if (!t || !/<[a-z!]/i.test(t)) { L.abrirAba('codigo'); L.aviso('Cole o código na caixa e toque em ✅ Usar este código.'); return; }
+    L.codigo.trocar(t); L.aviso('Código colado. Toque na página para escolher um pedaço.', 'ok');
+  }
+
+  function receber(e) {
+    if (!frame || e.source !== frame.contentWindow) return;
+    const d = e.data || {};
+    if (d.lab === 'erro') L.aviso('A página tem um erro de programação: ' + d.msg, 'erro');
+    if (d.lab !== 'sel') return;
+    const novo = d.info.sel !== sel;
+    sel = d.info.sel; info = d.info;
+    if (novo) { redesenharLado(); if (innerWidth < 900) setTimeout(() => $('#in-lado').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }
+    else atualizarMedidas();
+  }
+
+  // ── o painel do lado ───────────────────────────────────────────────────────
+  // cada controle: [rótulo, propriedade css, tipo, opções, explicação]
+  function redesenharLado() {
+    const lado = $('#in-lado');
+    if (!sel || !info) {
+      lado.innerHTML = '<h3 style="margin-top:0">👆 Toque em qualquer pedaço da página</h3>' +
+        '<p>Pode ser um título, um botão, uma caixa, uma imagem… Aqui vai aparecer <b>o que é aquilo</b> e os botões para <b>mudar</b>.</p>' +
+        '<div class="dica">Não precisa procurar nada no código. Você mexe aqui e o laboratório escreve o CSS por você, num bloco separado no fim do <code>&lt;head&gt;</code>. Depois é só ⬇ Baixar.</div>' +
+        '<p class="peq mut">Quer usar a SUA página? 📂 Abrir arquivo ou 📋 Colar código, lá em cima.</p>';
+      return;
+    }
+    const [nome, expl] = quemE(info.tag);
+    const c = info.css;
+    const v = (prop, real) => { const a = L.codigo.valor(sel, prop, soCel); return a != null ? a : real; };
+    const marca = (prop) => (L.codigo.valor(sel, prop, soCel) != null ? ' <button class="bt mini" data-tirar="' + prop + '" title="Voltar ao que era">✕</button>' : '');
+    const fundoReal = transparente(c.background) ? '' : c.background;
+    const ehTexto = !['img', 'video', 'iframe', 'canvas', 'svg', 'hr', 'br', 'input'].includes(info.tag);
+    const disp = v('display', c.display);
+    const modo = /grid/.test(disp) ? 'grade' : /flex/.test(disp) ? (/column/.test(v('flex-direction', '')) ? 'pilha' : 'lado') : 'normal';
+    const cols = num((String(v('grid-template-columns', '')).match(/repeat\((\d+)/) || [])[1], (c.gridCols && c.gridCols !== 'none') ? c.gridCols.split(' ').length : 2);
+    const larg = String(v('width', '')); const largPct = /%$/.test(larg) ? num(larg, 100) : 100;
+    const alt = String(v('height', '')); const altPx = /px$/.test(alt) ? num(alt, 100) : Math.max(20, info.h);
+
+    const ctl = (rot, prop, campo, oque) => '<div class="ctl"><label>' + rot + '</label><div>' + campo + '</div><span class="val" data-val="' + prop + '">' + marca(prop) + '</span><div class="oque">' + oque + '</div></div>';
+    const range = (prop, min, max, val, un) => '<input type="range" data-p="' + prop + '" data-un="' + un + '" min="' + min + '" max="' + max + '" value="' + val + '">';
+    const bts = (lista) => '<div class="grupo">' + lista.map(([txt, prop, val, at]) => '<button class="bt mini' + (at ? ' ativo' : '') + '" data-p="' + prop + '" data-v="' + L.esc(val) + '">' + txt + '</button>').join('') + '</div>';
+
+    lado.innerHTML =
+      '<button class="bt mini so-cel" id="in-subir" style="float:right">⬆ Ver a página</button>' +
+      '<div class="quem"><b>Você escolheu:</b> ' + L.esc(nome) + (info.id ? ' <code>#' + L.esc(info.id) + '</code>' : '') + (info.cls.length ? ' <code>.' + info.cls.map(L.esc).join(' .') + '</code>' : '') + '</div>' +
+      (expl ? '<p class="peq" style="margin:4px 0">' + L.esc(expl) + '</p>' : '') +
+      (info.texto ? '<p class="peq mut" style="margin:4px 0">Texto: “' + L.esc(info.texto.slice(0, 90)) + (info.texto.length > 90 ? '…' : '') + '”</p>' : '') +
+      '<p class="peq mut" id="in-medidas" style="margin:4px 0"></p>' +
+      '<div class="linha" style="margin:6px 0">' +
+      (info.paiTag ? '<button class="bt mini" id="in-pai" title="Escolher a caixa onde este pedaço está guardado">⤴ Caixa de fora (' + L.esc(quemE(info.paiTag)[0].replace(/ \(.*\)/, '')) + ')</button>' : '') +
+      (info.filhos ? '<button class="bt mini" id="in-filho">⤵ Primeiro de dentro</button>' : '') +
+      '<button class="bt mini" id="in-achar">🔎 Achar no código</button></div>' +
+      '<label class="dica" style="display:block;cursor:pointer"><input type="checkbox" id="in-socel"' + (soCel ? ' checked' : '') + '> 📱 <b>Mudar só no celular</b> (telas até 600 pixels). Desmarcado = muda em todo lugar.</label>' +
+
+      '<details class="secao" open><summary>🎨 Cores</summary>' +
+      (ehTexto ? ctl('Cor da letra', 'color', '<input type="color" data-p="color" value="' + hex(v('color', c.color)) + '">', 'Em CSS: <code>color</code>.') : '') +
+      ctl('Cor do fundo', 'background', '<div class="grupo"><input type="color" data-p="background" value="' + hex(v('background', fundoReal || '#ffffff')) + '"><button class="bt mini" data-p="background" data-v="transparent">sem fundo</button></div>', 'Em CSS: <code>background</code>. “Sem fundo” = transparente: aparece o que está atrás.') +
+      '</details>' +
+
+      (ehTexto ? '<details class="secao" open><summary>🔤 Letra</summary>' +
+        ctl('Tamanho da letra', 'font-size', range('font-size', 8, 72, num(v('font-size', c.fontSize), 16), 'px'), 'Em CSS: <code>font-size</code>. 16px é o normal de leitura.') +
+        ctl('Grossura', 'font-weight', bts([['Normal', 'font-weight', '400', +c.fontWeight < 600], ['Negrito', 'font-weight', '700', +c.fontWeight >= 600]]), 'Em CSS: <code>font-weight</code> (400 = normal, 700 = negrito).') +
+        ctl('Alinhar o texto', 'text-align', bts([['⬅ Esquerda', 'text-align', 'left', /left|start/.test(c.textAlign)], ['⬌ Centro', 'text-align', 'center', c.textAlign === 'center'], ['➡ Direita', 'text-align', 'right', /right|end/.test(c.textAlign)], ['☰ Justificado', 'text-align', 'justify', c.textAlign === 'justify']]), 'Em CSS: <code>text-align</code>. Alinha o texto DENTRO da caixa.') +
+        ctl('Tipo de letra', 'font-family', '<select data-p="font-family"><option value="">(como está)</option><option value="Arial, sans-serif">Arial (simples)</option><option value="Georgia, serif">Georgia (com pezinho)</option><option value="\'Times New Roman\', serif">Times New Roman (de petição)</option><option value="Verdana, sans-serif">Verdana (larga)</option><option value="\'Courier New\', monospace">Courier (máquina de escrever)</option><option value="system-ui, sans-serif">A do aparelho</option></select>', 'Em CSS: <code>font-family</code>. A segunda palavra é a “reserva” se a primeira não existir.') +
+        '</details>' : '') +
+
+      '<details class="secao" open><summary>📏 Tamanho</summary>' +
+      ctl('Largura', 'width', range('width', 10, 100, largPct, '%') + '<div class="grupo" style="margin-top:4px"><button class="bt mini" data-p="width" data-v="auto">automática</button><button class="bt mini" data-p="width" data-v="100%">toda a largura</button></div>', 'Em CSS: <code>width</code>. Em % = pedaço da caixa de fora (50% = metade).') +
+      ctl('Largura máxima', 'max-width', range('max-width', 200, 1400, num(v('max-width', ''), 900), 'px') + '<div class="grupo" style="margin-top:4px"><button class="bt mini" data-p="max-width" data-v="none">sem limite</button></div>', 'Em CSS: <code>max-width</code>. Cresce até esse limite e não passa. Ótimo para texto não ficar comprido demais no computador.') +
+      ctl('Altura', 'height', range('height', 20, 900, altPx, 'px') + '<div class="grupo" style="margin-top:4px"><button class="bt mini" data-p="height" data-v="auto">automática</button></div>', 'Em CSS: <code>height</code>. Quase sempre o melhor é “automática”: a caixa cresce conforme o conteúdo.') +
+      '</details>' +
+
+      '<details class="secao" open><summary>📦 Espaços (a “caixa”)</summary>' +
+      ctl('Espaço de DENTRO', 'padding', range('padding', 0, 80, num(v('padding', c.paddingTop), 0), 'px'), 'Em CSS: <code>padding</code>. É o “enchimento”: afasta o conteúdo da borda, por dentro. O fundo pinta esse espaço.') +
+      ctl('Espaço de FORA', 'margin', range('margin', 0, 80, num(v('margin', c.marginTop), 0), 'px') + '<div class="grupo" style="margin-top:4px"><button class="bt mini" data-p="margin" data-v="0 auto">⬌ centralizar a caixa</button></div>', 'Em CSS: <code>margin</code>. Afasta esta caixa das vizinhas, por fora. “0 auto” centraliza (precisa ter largura menor que 100%).') +
+      '</details>' +
+
+      '<details class="secao"><summary>🔲 Borda e cantos</summary>' +
+      ctl('Cantos arredondados', 'border-radius', range('border-radius', 0, 50, num(v('border-radius', c.borderRadius), 0), 'px'), 'Em CSS: <code>border-radius</code>. 0 = quadrado; bem alto = pílula.') +
+      ctl('Borda', 'border', range('border', 0, 10, num(String(v('border', c.borderWidth)), 0), 'px') + ' <input type="color" id="in-borda-cor" value="#999999" title="Cor da borda">', 'Em CSS: <code>border: 1px solid cor</code> (grossura, tipo da linha, cor).') +
+      ctl('Sombra', 'box-shadow', bts([['nenhuma', 'box-shadow', 'none'], ['leve', 'box-shadow', '0 2px 8px rgba(0,0,0,.15)'], ['forte', 'box-shadow', '0 8px 24px rgba(0,0,0,.3)']]), 'Em CSS: <code>box-shadow</code>. Dá sensação de cartão “levantado”.') +
+      '</details>' +
+
+      '<details class="secao" open><summary>👁 Mostrar / esconder</summary>' +
+      ctl('Este pedaço', 'display-vis', '<div class="grupo"><button class="bt mini" data-esconder="1">🙈 Esconder</button><button class="bt mini" data-esconder="0">👁 Mostrar</button></div>', 'Em CSS: <code>display: none</code> some com o pedaço (e ele não ocupa espaço). Marque “📱 só no celular” acima para esconder só no celular.') +
+      '</details>' +
+
+      (info.filhos ? '<details class="secao" open><summary>🧩 Arrumar o que tem DENTRO (' + info.filhos + ' ' + (info.filhos > 1 ? 'pedaços' : 'pedaço') + ')</summary>' +
+        '<div class="grupo" style="margin:6px 0">' +
+        '<button class="bt mini' + (modo === 'normal' ? ' ativo' : '') + '" data-arrumar="normal">⬇ Normal (um embaixo do outro)</button>' +
+        '<button class="bt mini' + (modo === 'lado' ? ' ativo' : '') + '" data-arrumar="lado">➡ Lado a lado (flex)</button>' +
+        '<button class="bt mini' + (modo === 'grade' ? ' ativo' : '') + '" data-arrumar="grade">▦ Em grade (grid)</button>' +
+        '<button class="bt mini' + (modo === 'pilha' ? ' ativo' : '') + '" data-arrumar="pilha">⬇ Pilha com espaço (flex coluna)</button></div>' +
+        '<p class="oque" style="margin:0 0 4px">' + ({ normal: 'Agora: normal. Cada caixa ocupa a linha toda e a próxima vai para baixo.', lado: 'Agora: <code>display:flex</code>. Os pedaços ficam numa fila; se não couber, descem (<code>flex-wrap</code>).', grade: 'Agora: <code>display:grid</code>. Os pedaços viram uma tabela de colunas iguais.', pilha: 'Agora: <code>flex-direction:column</code>. Um embaixo do outro, com espaço igual entre eles.' }[modo]) + '</p>' +
+        (modo === 'grade' ? ctl('Colunas', 'grid-template-columns', range('grid-cols', 1, 6, cols, ''), 'Em CSS: <code>grid-template-columns: repeat(N, 1fr)</code>. “1fr” = uma parte igual do espaço.') : '') +
+        (modo !== 'normal' ? ctl('Espaço entre eles', 'gap', range('gap', 0, 60, num(v('gap', c.gap), 0), 'px'), 'Em CSS: <code>gap</code>. A distância entre os pedaços de dentro.') : '') +
+        (modo === 'lado' ? ctl('Distribuir', 'justify-content', bts([['juntos no início', 'justify-content', 'flex-start'], ['no centro', 'justify-content', 'center'], ['espalhados', 'justify-content', 'space-between'], ['no fim', 'justify-content', 'flex-end']]), 'Em CSS: <code>justify-content</code>. Onde os pedaços ficam na linha.') +
+          ctl('Altura deles', 'align-items', bts([['em cima', 'align-items', 'flex-start'], ['no meio', 'align-items', 'center'], ['esticados', 'align-items', 'stretch']]), 'Em CSS: <code>align-items</code>. Alinhamento na vertical.') : '') +
+        (modo === 'lado' || modo === 'grade' ? '<div class="ctl"><label>📱 No celular</label><div><button class="bt mini" id="in-empilhar">Empilhar no celular (um embaixo do outro)</button></div><span></span><div class="oque">Cria um <code>@media (max-width: 600px)</code>: regra que só vale em tela pequena. É assim que se faz página “responsiva”.</div></div>' : '') +
+        '</details>' : '') +
+
+      (ehTexto && !info.filhos && info.texto ? '<details class="secao"><summary>✏️ Trocar o texto</summary><textarea id="in-texto" rows="3">' + L.esc(info.texto) + '</textarea><div class="linha" style="margin-top:6px"><button class="bt mini forte" id="in-texto-ok">✅ Trocar no código</button></div><p class="oque">Isto muda o HTML (o conteúdo), não o CSS (a aparência).</p></details>' : '') +
+
+      '<details class="secao"><summary>📜 Ver o código deste pedaço</summary>' +
+      '<p class="peq" style="margin:4px 0"><b>HTML</b> (o que ele é):</p><pre class="trecho" id="in-html">' + L.esc(info.html) + '</pre>' +
+      '<p class="peq" style="margin:4px 0"><b>CSS que você criou</b> (como ele aparece):</p><pre class="trecho" id="in-css"></pre>' +
+      '<p class="peq mut">Caminho até ele (seletor): <code class="cod">' + L.esc(sel) + '</code></p>' +
+      '</details>';
+
+    // ligações
+    const enviarValor = (prop, val) => L.codigo.ajustar(sel, prop, val, soCel);
+    lado.querySelectorAll('input[type=range]').forEach((r) => {
+      const fazer = () => {
+        let p = r.dataset.p, val = r.value + r.dataset.un;
+        if (p === 'grid-cols') { p = 'grid-template-columns'; val = 'repeat(' + r.value + ', 1fr)'; }
+        if (p === 'border') val = r.value + 'px solid ' + $('#in-borda-cor').value;
+        enviarValor(p, val); mostrarVal(p, r.dataset.p === 'grid-cols' ? r.value + ' col.' : val.split(' ')[0]);
+      };
+      r.addEventListener('input', fazer);
+    });
+    lado.querySelectorAll('input[type=color][data-p]').forEach((i) => i.addEventListener('input', () => { enviarValor(i.dataset.p, i.value); mostrarVal(i.dataset.p, i.value); }));
+    $('#in-borda-cor').addEventListener('input', () => { const r = lado.querySelector('[data-p=border]'); enviarValor('border', Math.max(1, +r.value) + 'px solid ' + $('#in-borda-cor').value); });
+    lado.querySelectorAll('select[data-p]').forEach((s) => { s.value = L.codigo.valor(sel, s.dataset.p, soCel) || ''; s.onchange = () => enviarValor(s.dataset.p, s.value || null); });
+    $('#in-socel').onchange = (e) => { soCel = e.target.checked; if (soCel) verCelular(true); redesenharLado(); };
+    $('#in-subir').onclick = () => $('#in-moldura').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if ($('#in-pai')) $('#in-pai').onclick = () => enviar({ lab: 'pai' });
+    if ($('#in-filho')) $('#in-filho').onclick = () => enviar({ lab: 'filho' });
+    $('#in-achar').onclick = () => { L.abrirAba('codigo'); L.editorCodigo.achar(info.html); };
+    if ($('#in-empilhar')) $('#in-empilhar').onclick = empilharNoCelular;
+    if ($('#in-texto-ok')) $('#in-texto-ok').onclick = trocarTexto;
+    atualizarMedidas();
+  }
+
+  function cliqueLado(e) {
+    const t = e.target;
+    if (t.dataset.tirar) { L.codigo.ajustar(sel, t.dataset.tirar, null, soCel); if (t.dataset.tirar === 'display') L.codigo.ajustar(sel, 'display', null, soCel); return redesenharLado(); }
+    if (t.dataset.esconder) {
+      if (t.dataset.esconder === '1') { L.codigo.ajustar(sel, 'display', 'none', soCel); L.aviso('Escondido' + (soCel ? ' no celular' : '') + '. Para trazer de volta: 👁 Mostrar, ou ✕ na lista de mudanças.'); }
+      else L.codigo.ajustar(sel, 'display', null, soCel);
+      return;
+    }
+    if (t.dataset.arrumar) { arrumar(t.dataset.arrumar); return redesenharLado(); }
+    if (t.matches('button[data-p][data-v]')) {
+      L.codigo.ajustar(sel, t.dataset.p, t.dataset.v, soCel);
+      t.parentElement.querySelectorAll('button').forEach((b) => b.classList.toggle('ativo', b === t));
+      mostrarVal(t.dataset.p, t.dataset.v);
+    }
+  }
+  function arrumar(modo) {
+    const a = (p, v) => L.codigo.ajustar(sel, p, v, soCel);
+    ['flex-wrap', 'flex-direction', 'grid-template-columns', 'justify-content', 'align-items'].forEach((p) => a(p, null));
+    if (modo === 'normal') { a('display', null); a('gap', null); L.aviso('Voltou ao normal: um embaixo do outro.'); }
+    if (modo === 'lado') { a('display', 'flex'); a('flex-wrap', 'wrap'); a('gap', '12px'); L.aviso('Agora os pedaços de dentro ficam lado a lado (flex).'); }
+    if (modo === 'grade') { a('display', 'grid'); a('grid-template-columns', 'repeat(' + Math.min(3, Math.max(2, info.filhos)) + ', 1fr)'); a('gap', '12px'); L.aviso('Agora é uma grade (grid). Mude o número de colunas.'); }
+    if (modo === 'pilha') { a('display', 'flex'); a('flex-direction', 'column'); a('gap', '12px'); }
+  }
+  function empilharNoCelular() {
+    const disp = L.codigo.valor(sel, 'display', false) || info.css.display;
+    if (/grid/.test(disp)) L.codigo.ajustar(sel, 'grid-template-columns', '1fr', true);
+    else { L.codigo.ajustar(sel, 'flex-direction', 'column', true); }
+    verCelular(true);
+    L.aviso('Pronto: no celular eles ficam um embaixo do outro. No computador continuam lado a lado.', 'ok');
+  }
+  function trocarTexto() {
+    const novo = $('#in-texto').value; const velho = info.texto;
+    if (novo === velho) return;
+    const novoEsc = L.esc(novo).replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+    // tenta do mais preciso ao mais simples: o pedaço inteiro, depois >texto<, depois só o texto
+    let r = 'nao';
+    const tentativas = [[info.html, info.html.replace('>' + velho + '<', '>' + novoEsc + '<')], ['>' + velho + '<', '>' + novoEsc + '<'], [velho, novoEsc]];
+    for (const [a, b] of tentativas) { if (a === b) continue; r = L.codigo.trocarTrecho(a, b); if (r === 'ok') break; }
+    if (r === 'ok') { info.texto = novo; L.aviso('Texto trocado no código.', 'ok'); }
+    else if (r === 'varios') L.aviso('Esse texto aparece mais de uma vez no código. Troque na aba 📝 Código (usei 🔎 para achar).', 'erro');
+    else { L.aviso('Não achei esse texto igualzinho no código (pode ter espaços ou acentos escritos de outro jeito). Troque na aba 📝 Código.', 'erro'); L.abrirAba('codigo'); L.editorCodigo.achar(info.html); }
+  }
+  function mostrarVal(prop, val) { const s = painel.querySelector('[data-val="' + prop + '"]'); if (s) { s.textContent = val; } const css = $('#in-css'); if (css) css.textContent = cssDoSel(); }
+  function cssDoSel() {
+    const linhas = L.codigo.lista().filter((x) => x.sel === sel).map((x) => (x.cel ? '/* só no celular */\n' : '') + x.sel + ' {\n' + Object.entries(x.props).map(([p, v]) => '  ' + p + ': ' + v + ';').join('\n') + '\n}');
+    return linhas.join('\n') || '(nada ainda — mexa num controle)';
+  }
+  function atualizarMedidas() {
+    const m = $('#in-medidas'); if (m && info) m.textContent = 'Tamanho na tela agora: ' + info.w + ' de largura × ' + info.h + ' de altura (pixels).';
+    const css = $('#in-css'); if (css) css.textContent = cssDoSel();
+  }
+
+  // lista de tudo o que você mudou, com ✕ para desfazer cada um
+  function pintarMudancas() {
+    const box = $('#in-mudancas'); if (!box) return;
+    const l = L.codigo.lista();
+    if (!l.length) { box.innerHTML = '<b>📋 Mudanças feitas</b><p class="peq mut" style="margin:4px 0">Nenhuma ainda.</p>'; return; }
+    box.innerHTML = '<div class="linha"><b class="cresce">📋 Mudanças feitas (' + l.length + ')</b><button class="bt mini" id="in-limpar">🧹 Tirar todas</button></div>' +
+      l.map((x, i) => '<div class="linha" style="border-top:1px solid var(--linha);padding:4px 0"><code class="cod" style="flex:1;min-width:0;overflow-wrap:anywhere">' + (x.cel ? '📱 ' : '') + L.esc(x.sel) + '</code>' +
+        '<span class="peq mut">' + Object.keys(x.props).length + ' ajuste(s)</span>' +
+        '<button class="bt mini" data-escolher="' + i + '" title="Escolher este pedaço">🎯</button><button class="bt mini" data-apagar="' + i + '" title="Desfazer as mudanças deste pedaço">✕</button></div>').join('');
+    box.querySelector('#in-limpar').onclick = () => { if (confirm('Tirar TODAS as mudanças de visual?')) { L.codigo.limparAjustes(); redesenharLado(); } };
+    box.querySelectorAll('[data-escolher]').forEach((b) => (b.onclick = () => enviar({ lab: 'achar', sel: l[+b.dataset.escolher].sel })));
+    box.querySelectorAll('[data-apagar]').forEach((b) => (b.onclick = () => { const x = l[+b.dataset.apagar]; L.codigo.apagarSel(x.sel, x.cel); redesenharLado(); }));
+  }
+
+  L.inspetor = { recarregar: carregar };
+  L.registrar({ aba: 'inspetor', montar });
+})(window.L);
+
+</script>
+  <script>
+/* 40-manual.js — 📘 APRENDER
+   Lições curtas. Cada uma tem: explicação simples, um código que você PODE MUDAR
+   e a página ao vivo do lado. Mudou o código → a página muda na hora.
+   "🔍 Levar para o Inspetor" abre o exemplo na aba de mexer tocando. */
+(function (L) {
+  'use strict';
+  const pag = (corpo, estilo) => '<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<style>\n' + estilo.trim() + '\n</style>\n</head>\n<body>\n' + corpo.trim() + '\n</body>\n</html>';
+
+  const LICOES = [
+    {
+      id: 'comeco', titulo: '0. Como usar este laboratório',
+      exp: '<p>Este laboratório tem 3 partes:</p><ul><li><b>🔍 Mexer no visual</b>: você vê a página funcionando, <b>toca num pedaço</b> e muda cor, tamanho, espaço, esconde, arruma lado a lado… sem procurar nada no código.</li><li><b>📘 Aprender</b>: estas lições. Mude o código da esquerda e veja a página da direita mudar na hora.</li><li><b>📝 Código</b>: o código inteiro, para colar, abrir, copiar e baixar.</li></ul><p>Uma página da internet é feita de <b>3 coisas</b>:</p><ul><li><b>HTML</b> = <i>o que existe</i> (título, parágrafo, botão, imagem). É o esqueleto.</li><li><b>CSS</b> = <i>como aparece</i> (cor, tamanho, posição). É a roupa.</li><li><b>JavaScript</b> = <i>o que acontece</i> quando você toca (abrir menu, calcular). É o movimento.</li></ul>',
+      dica: 'Experimente: troque a palavra “blue” (azul) por “red” (vermelho) no código ao lado e veja.',
+      codigo: pag('<h1>Olá, Maikon!</h1>\n<p>Este é um parágrafo. Mude este texto.</p>\n<button onclick="alert(\'Você tocou no botão!\')">Toque aqui</button>', 'h1 { color: blue; }\np { font-size: 20px; }'),
+    },
+    {
+      id: 'html', titulo: '1. O que é HTML (etiquetas)',
+      exp: '<p>HTML é feito de <b>etiquetas</b> (em inglês, <i>tags</i>). Quase toda etiqueta <b>abre</b> e <b>fecha</b>:</p><p><code>&lt;p&gt;</code> texto aqui <code>&lt;/p&gt;</code> ← a barra <code>/</code> fecha.</p><p>O que fica entre as duas é o <b>conteúdo</b>. Etiquetas podem ficar <b>uma dentro da outra</b>, como caixas dentro de caixas.</p><p>A página sempre tem:</p><ul><li><code>&lt;head&gt;</code> = a “cabeça”: coisas que NÃO aparecem (título da aba, o CSS).</li><li><code>&lt;body&gt;</code> = o “corpo”: tudo o que aparece na tela.</li></ul><p>Uma etiqueta pode ter <b>atributos</b>: informações extras dentro da abertura, como <code>&lt;a href="endereço"&gt;</code>.</p>',
+      dica: 'Esqueceu de fechar uma etiqueta? O navegador tenta adivinhar, e às vezes tudo fica torto. Sempre feche.',
+      codigo: pag('<div>\n  Esta é uma caixa (div).\n  <p>Este parágrafo está DENTRO da caixa.</p>\n  <p>Este também. Tem <b>negrito</b> e <i>itálico</i> aqui dentro.</p>\n</div>', 'div { border: 2px dashed gray; padding: 10px; }\np { background: #eef; }'),
+    },
+    {
+      id: 'textos', titulo: '2. Títulos e textos',
+      exp: '<ul><li><code>&lt;h1&gt;</code> até <code>&lt;h6&gt;</code>: títulos. h1 é o maior e mais importante.</li><li><code>&lt;p&gt;</code>: parágrafo.</li><li><code>&lt;b&gt;</code> ou <code>&lt;strong&gt;</code>: negrito. <code>&lt;i&gt;</code> ou <code>&lt;em&gt;</code>: itálico.</li><li><code>&lt;br&gt;</code>: pula linha (não fecha).</li><li><code>&lt;blockquote&gt;</code>: citação recuada (bom para ementas!).</li><li><code>&lt;span&gt;</code>: um pedacinho de texto para pintar diferente.</li></ul>',
+      dica: 'Use h1, h2, h3 pela IMPORTÂNCIA, não pelo tamanho. O tamanho você muda depois no CSS.',
+      codigo: pag('<h1>Petição Inicial</h1>\n<h2>Dos Fatos</h2>\n<p>O autor nasceu em 1960 e trabalhou <b>35 anos</b> com carteira assinada.<br>Esta frase começa numa linha nova.</p>\n<h2>Do Direito</h2>\n<blockquote>“A aposentadoria é direito do segurado…” (trecho de ementa)</blockquote>\n<p>Pedido: <span class="destaque">concessão do benefício</span>.</p>', 'body { font-family: Georgia, serif; padding: 12px; }\nh1 { text-align: center; }\nblockquote { margin-left: 40px; font-size: 14px; color: #444; }\n.destaque { background: yellow; }'),
+    },
+    {
+      id: 'links', titulo: '3. Links e imagens',
+      exp: '<ul><li><b>Link</b>: <code>&lt;a href="https://…"&gt;texto&lt;/a&gt;</code>. O <code>href</code> diz para onde vai. <code>target="_blank"</code> abre em outra aba.</li><li>Link para WhatsApp: <code>href="https://wa.me/5531999999999"</code>.</li><li>Link para telefone: <code>href="tel:+5531999999999"</code>.</li><li><b>Imagem</b>: <code>&lt;img src="foto.jpg" alt="descrição"&gt;</code>. Não fecha. O <code>alt</code> é lido por quem não enxerga e aparece se a imagem falhar.</li></ul>',
+      dica: 'Para a imagem não “estourar” no celular: img { max-width: 100%; height: auto; }',
+      codigo: pag('<p><a href="https://wa.me/5531999999999" target="_blank">💬 Fale no WhatsApp</a></p>\n<p><a href="tel:+5531999999999">📞 Ligar</a></p>\n<img src="https://picsum.photos/600/300" alt="Uma foto qualquer">', 'body { padding: 12px; font-family: Arial; }\na { color: green; font-size: 20px; }\nimg { max-width: 100%; height: auto; border-radius: 12px; }'),
+    },
+    {
+      id: 'listas', titulo: '4. Listas e tabelas',
+      exp: '<ul><li><code>&lt;ul&gt;</code> = lista com bolinhas. <code>&lt;ol&gt;</code> = lista numerada. Cada item é um <code>&lt;li&gt;</code>.</li><li><b>Tabela</b>: <code>&lt;table&gt;</code> → linhas <code>&lt;tr&gt;</code> → células <code>&lt;td&gt;</code> (ou <code>&lt;th&gt;</code> para título).</li></ul>',
+      dica: 'Tabela larga no celular? Coloque ela dentro de <div style="overflow-x:auto"> para poder arrastar para o lado.',
+      codigo: pag('<h3>Documentos para aposentadoria</h3>\n<ol>\n  <li>RG e CPF</li>\n  <li>Carteira de trabalho</li>\n  <li>CNIS</li>\n</ol>\n<div style="overflow-x:auto">\n<table>\n  <tr><th>Período</th><th>Empresa</th><th>Tempo</th></tr>\n  <tr><td>1980–1990</td><td>Fábrica A</td><td>10 anos</td></tr>\n  <tr><td>1990–2015</td><td>Loja B</td><td>25 anos</td></tr>\n</table>\n</div>', 'body { padding: 12px; font-family: Arial; }\ntable { border-collapse: collapse; width: 100%; }\nth, td { border: 1px solid #999; padding: 8px; }\nth { background: #dde; }'),
+    },
+    {
+      id: 'form', titulo: '5. Botões e formulários',
+      exp: '<ul><li><code>&lt;button&gt;</code>: botão.</li><li><code>&lt;input&gt;</code>: campo de digitar. O <code>type</code> muda o jeito: <code>text</code>, <code>number</code>, <code>date</code>, <code>email</code>, <code>checkbox</code> (marcar), <code>color</code>…</li><li><code>&lt;label&gt;</code>: o nome do campo. Tocar no nome já foca o campo.</li><li><code>&lt;textarea&gt;</code>: texto grande. <code>&lt;select&gt;</code> com <code>&lt;option&gt;</code>: lista de escolha.</li><li><code>placeholder="…"</code>: o texto cinza de exemplo dentro do campo.</li></ul>',
+      dica: 'O botão de baixo usa um pouquinho de JavaScript (onclick) para fazer uma conta. É assim que as páginas “fazem coisas”.',
+      codigo: pag('<label>Nome do cliente<br><input type="text" id="nome" placeholder="Ex.: Maria da Silva"></label>\n<label>Nascimento<br><input type="date" id="nasc"></label>\n<label>Benefício<br>\n  <select id="tipo"><option>Aposentadoria por idade</option><option>BPC/LOAS</option></select>\n</label>\n<label><input type="checkbox"> Já tem CNIS</label>\n<button onclick="document.getElementById(\'res\').textContent = \'Ficha de \' + document.getElementById(\'nome\').value + \' — \' + document.getElementById(\'tipo\').value">Montar ficha</button>\n<p id="res"></p>', 'body { padding: 12px; font-family: Arial; display: grid; gap: 10px; max-width: 400px; }\ninput, select { width: 100%; padding: 8px; font-size: 16px; }\nbutton { padding: 12px; font-size: 16px; background: #2a5bd7; color: white; border: 0; border-radius: 8px; }'),
+    },
+    {
+      id: 'css', titulo: '6. O que é CSS (e como “achar” as coisas)',
+      exp: '<p>CSS é uma lista de <b>regras</b>. Cada regra diz <b>QUEM</b> e <b>COMO</b>:</p><p><code>quem { propriedade: valor; }</code></p><p>O “quem” se chama <b>seletor</b>:</p><ul><li><code>p</code> → todos os parágrafos.</li><li><code>.cartao</code> (com ponto) → tudo que tem <code>class="cartao"</code>. <b>Classe</b> é um apelido que você dá, pode repetir em vários.</li><li><code>#topo</code> (com #) → o único que tem <code>id="topo"</code>. <b>id</b> é nome único.</li><li><code>header h1</code> → o h1 que está DENTRO do header.</li></ul><p>O CSS fica dentro de <code>&lt;style&gt;</code> no <code>&lt;head&gt;</code>, ou num arquivo <code>.css</code> separado, ou direto na etiqueta: <code>style="color:red"</code>.</p>',
+      dica: 'Se duas regras brigam, ganha a mais específica (#id ganha de .classe, que ganha de etiqueta) ou a que vem por último. “!important” força a ganhar — o laboratório usa isso nas suas mudanças.',
+      codigo: pag('<header id="topo"><h1>Escritório</h1></header>\n<p>Parágrafo comum.</p>\n<p class="cartao">Parágrafo com a classe cartao.</p>\n<p class="cartao">Outro com a mesma classe.</p>', 'p { color: gray; }\n.cartao { color: black; background: #ffe; padding: 8px; border: 1px solid #cc9; }\n#topo { background: navy; }\nheader h1 { color: white; margin: 0; padding: 10px; }'),
+    },
+    {
+      id: 'caixa', titulo: '7. A caixa: margin, border, padding',
+      exp: '<p><b>Tudo na página é uma caixa.</b> Cada caixa tem 4 camadas, de dentro para fora:</p><ol><li><b>Conteúdo</b> (o texto, a imagem). Tamanho: <code>width</code> e <code>height</code>.</li><li><b>padding</b> = espaço de DENTRO, entre o conteúdo e a borda. O fundo pinta aqui.</li><li><b>border</b> = a borda (linha em volta).</li><li><b>margin</b> = espaço de FORA, afasta das outras caixas. É sempre transparente.</li></ol><p>Escrevendo: <code>padding: 10px</code> (os 4 lados), <code>padding: 10px 20px</code> (cima/baixo, lados), <code>margin: 0 auto</code> (centraliza a caixa).</p>',
+      dica: 'Truque que quase toda página usa: * { box-sizing: border-box; } — assim a largura INCLUI padding e borda, e as contas ficam fáceis.',
+      codigo: pag('<div class="caixa">Eu sou o conteúdo</div>\n<div class="caixa outra">Eu tenho mais padding e margin</div>', '* { box-sizing: border-box; }\nbody { background: #ddd; font-family: Arial; }\n.caixa {\n  background: white;      /* pinta o conteúdo + padding */\n  padding: 10px;          /* espaço de DENTRO */\n  border: 4px solid blue; /* a borda */\n  margin: 10px;           /* espaço de FORA */\n}\n.outra { padding: 40px; margin: 40px; border-radius: 16px; width: 70%; }'),
+    },
+    {
+      id: 'display', titulo: '8. Bloco e em linha (display)',
+      exp: '<p>Toda etiqueta tem um jeito de “sentar” na página, chamado <code>display</code>:</p><ul><li><code>block</code> (bloco): ocupa a linha toda; a próxima vai para baixo. Ex.: div, p, h1, section.</li><li><code>inline</code> (em linha): fica no meio do texto, só o tamanho do conteúdo. Ex.: span, a, b. <i>Não aceita width/height.</i></li><li><code>inline-block</code>: fica em linha MAS aceita tamanho. Bom para botões.</li><li><code>none</code>: some.</li><li><code>flex</code> e <code>grid</code>: arrumam os de dentro (próximas lições).</li></ul>',
+      dica: 'Um link (a) não aceitou largura? Coloque display: inline-block nele.',
+      codigo: pag('<div class="bloco">div = bloco</div>\n<div class="bloco">outro bloco (foi para baixo)</div>\n<p>Texto com <span class="linha">um span</span> e <a href="#" class="linha">um link</a> no meio, em linha.</p>\n<a href="#" class="botao">Link como botão (inline-block)</a>', 'body { font-family: Arial; padding: 10px; }\n.bloco { background: #cde; margin: 4px 0; }\n.linha { background: #fd9; }\n.botao { display: inline-block; width: 220px; padding: 12px; background: green; color: white; text-align: center; border-radius: 8px; text-decoration: none; }'),
+    },
+    {
+      id: 'flex', titulo: '9. Flex: um ao lado do outro',
+      exp: '<p><code>display: flex</code> se põe na <b>caixa de FORA</b>. Aí as caixas de <b>dentro</b> ficam numa fila, lado a lado.</p><ul><li><code>gap: 12px</code> → espaço entre elas.</li><li><code>flex-wrap: wrap</code> → se não couber, desce para a linha de baixo (essencial no celular).</li><li><code>justify-content</code> → onde ficam na linha: <code>flex-start</code> (início), <code>center</code>, <code>space-between</code> (espalhadas), <code>flex-end</code>.</li><li><code>align-items: center</code> → centraliza na vertical.</li><li><code>flex-direction: column</code> → vira coluna (um embaixo do outro).</li><li>Na caixa de dentro: <code>flex: 1</code> → “cresça e ocupe o que sobrar”.</li></ul>',
+      dica: 'Centralizar QUALQUER coisa no meio de uma caixa: display:flex; justify-content:center; align-items:center;',
+      codigo: pag('<nav class="menu">\n  <b>⚖️ Advocacia</b>\n  <a href="#">Início</a>\n  <a href="#">Serviços</a>\n  <a href="#">Contato</a>\n</nav>\n<div class="fila">\n  <div class="item">1</div>\n  <div class="item">2</div>\n  <div class="item grande">3 (flex: 1, cresce)</div>\n</div>', 'body { font-family: Arial; margin: 0; }\n.menu { display: flex; gap: 16px; align-items: center; padding: 12px; background: #223; }\n.menu b { color: white; flex: 1; }\n.menu a { color: #9cf; }\n.fila { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; }\n.item { background: #fc6; padding: 20px; }\n.grande { flex: 1; background: #9d9; }'),
+    },
+    {
+      id: 'grid', titulo: '10. Grid: grade de colunas',
+      exp: '<p><code>display: grid</code> também vai na <b>caixa de FORA</b>, mas transforma os de dentro numa <b>grade</b>, como uma tabela.</p><ul><li><code>grid-template-columns: repeat(3, 1fr)</code> → 3 colunas iguais. <b>fr</b> = “fração”, uma parte igual do espaço.</li><li><code>grid-template-columns: 200px 1fr</code> → uma coluna fixa de 200 e outra que ocupa o resto (ótimo para menu lateral).</li><li><code>gap: 12px</code> → espaço entre as células.</li><li><b>Mágico para celular:</b> <code>repeat(auto-fill, minmax(200px, 1fr))</code> → coloca quantas colunas couberem, cada uma com no mínimo 200px. Sozinho já fica responsivo!</li></ul>',
+      dica: 'Flex ou grid? Flex = uma fila (menu, botões). Grid = linhas E colunas (cartões, galeria, painel).',
+      codigo: pag('<h3>Grade fixa (3 colunas)</h3>\n<div class="grade">\n  <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>\n</div>\n<h3>Grade automática (diminua a tela!)</h3>\n<div class="auto">\n  <div>Aposentadoria</div><div>BPC</div><div>Revisão</div><div>Pensão</div>\n</div>', 'body { font-family: Arial; padding: 10px; }\n.grade { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }\n.auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }\n.grade div, .auto div { background: #bcf; padding: 16px; text-align: center; border-radius: 8px; }'),
+    },
+    {
+      id: 'celular', titulo: '11. Celular (responsivo) e @media',
+      exp: '<p>Para a página ficar boa no celular:</p><ol><li>No <code>&lt;head&gt;</code>, SEMPRE: <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code>. Sem isso o celular mostra a página minúscula.</li><li>Use <code>%</code>, <code>max-width</code> e <code>flex-wrap</code> em vez de larguras fixas grandes.</li><li>Use <code>@media</code>: uma regra que <b>só vale em tela pequena</b>:</li></ol><p><code>@media (max-width: 600px) { .colunas { grid-template-columns: 1fr; } }</code></p><p>Lê-se: “quando a tela tiver no máximo 600 pixels, a grade vira uma coluna só”.</p>',
+      dica: 'Veja isto no 🔍 Inspetor com o botão 📱 Ver como celular: as colunas viram uma só.',
+      codigo: pag('<div class="colunas">\n  <div>Coluna 1</div>\n  <div>Coluna 2</div>\n  <div>Coluna 3</div>\n</div>\n<p class="so-pc">Este aviso só aparece em tela grande.</p>', 'body { font-family: Arial; padding: 10px; }\n.colunas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }\n.colunas div { background: #fca; padding: 20px; }\n\n/* SÓ NO CELULAR (tela até 600px): */\n@media (max-width: 600px) {\n  .colunas { grid-template-columns: 1fr; }\n  .so-pc { display: none; }\n}'),
+    },
+    {
+      id: 'esconder', titulo: '12. Esconder e mostrar',
+      exp: '<ul><li><code>display: none</code> → some e <b>não ocupa espaço</b>.</li><li><code>visibility: hidden</code> → fica invisível mas <b>o buraco continua</b>.</li><li><code>opacity: 0.5</code> → meio transparente (0 = invisível, 1 = normal).</li><li><b>Sem programar:</b> <code>&lt;details&gt;&lt;summary&gt;Título&lt;/summary&gt;conteúdo&lt;/details&gt;</code> → toca no título e abre/fecha sozinho.</li><li><b>Com um botão:</b> um pouquinho de JavaScript troca uma classe (veja o código).</li></ul>',
+      dica: 'O atributo hidden no HTML (<div hidden>) também esconde, igual display:none.',
+      codigo: pag('<details>\n  <summary>📄 Documentos necessários (toque)</summary>\n  <p>RG, CPF, carteira de trabalho, CNIS.</p>\n</details>\n\n<button onclick="document.getElementById(\'caixa\').classList.toggle(\'escondido\')">Mostrar / esconder a caixa</button>\n<div id="caixa">Eu apareço e desapareço.</div>\n<p style="opacity:.4">Eu sou meio transparente (opacity).</p>', 'body { font-family: Arial; padding: 10px; }\ndetails { background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 10px; }\nsummary { cursor: pointer; font-weight: bold; }\n#caixa { background: #fd8; padding: 16px; margin-top: 8px; }\n.escondido { display: none; }'),
+    },
+    {
+      id: 'posicao', titulo: '13. Barra fixa no topo e posição',
+      exp: '<ul><li><code>position: sticky; top: 0</code> → a barra <b>gruda no topo</b> quando você rola. É o jeito mais fácil.</li><li><code>position: fixed; bottom: 16px; right: 16px</code> → fica parado na tela sempre (ex.: botão do WhatsApp no canto).</li><li><code>position: relative</code> na caixa de fora + <code>position: absolute</code> na de dentro → coloca algo num canto da caixa (ex.: um selo “Novo”).</li><li><code>z-index: 10</code> → quem fica por cima (número maior = mais na frente).</li></ul>',
+      dica: 'Role a página da direita para ver a barra grudar e o botão verde ficar parado.',
+      codigo: pag('<header class="barra">⚖️ Meu Escritório</header>\n<div class="cartao">Cartão com selo <span class="selo">Novo</span></div>\n<p>Role para baixo…</p><p style="height:900px">…bastante texto…</p>\n<a class="zap" href="#">💬</a>', 'body { font-family: Arial; margin: 0; }\n.barra { position: sticky; top: 0; background: #234; color: white; padding: 14px; z-index: 10; }\n.cartao { position: relative; margin: 20px; padding: 30px; background: #eee; }\n.selo { position: absolute; top: -8px; right: -8px; background: red; color: white; padding: 4px 8px; border-radius: 8px; }\n.zap { position: fixed; bottom: 16px; right: 16px; background: #25d366; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; text-decoration: none; }'),
+    },
+    {
+      id: 'cores', titulo: '14. Cores, variáveis e modo escuro',
+      exp: '<p>Jeitos de escrever cor:</p><ul><li>Nome em inglês: <code>red</code>, <code>blue</code>, <code>white</code>…</li><li>Hexadecimal: <code>#2a5bd7</code> (o mais usado).</li><li><code>rgb(42, 91, 215)</code> e com transparência <code>rgba(0,0,0,.3)</code>.</li></ul><p><b>Variáveis</b>: você dá um nome para a cor UMA vez e usa em vários lugares. Trocou ali, troca no site todo:</p><p><code>:root { --principal: #2a5bd7; }</code> e depois <code>color: var(--principal);</code></p><p><b>Modo escuro automático</b>: <code>@media (prefers-color-scheme: dark) { … }</code> — vale quando o celular está no tema escuro.</p>',
+      dica: 'Mude --principal no código para #c0392b e veja o site todo mudar de azul para vermelho.',
+      codigo: pag('<h1>Título na cor principal</h1>\n<button>Botão na cor principal</button>\n<p class="aviso">Caixa de aviso</p>', ':root {\n  --principal: #2a5bd7;\n  --fundo: #ffffff;\n  --texto: #222222;\n}\n@media (prefers-color-scheme: dark) {\n  :root { --fundo: #111822; --texto: #e8e8e8; }\n}\nbody { background: var(--fundo); color: var(--texto); font-family: Arial; padding: 12px; }\nh1 { color: var(--principal); }\nbutton { background: var(--principal); color: white; border: 0; padding: 12px 20px; border-radius: 8px; }\n.aviso { border-left: 6px solid var(--principal); padding: 10px; background: rgba(0,0,0,.05); }'),
+    },
+    {
+      id: 'letras', titulo: '15. Letras (fontes) e texto',
+      exp: '<ul><li><code>font-family: Arial, sans-serif</code> → tipo de letra. A segunda é a reserva.</li><li><code>font-size: 18px</code> → tamanho. Também existe <code>rem</code>: <code>1rem</code> = o tamanho normal (16px), <code>1.5rem</code> = 24px.</li><li><code>font-weight: 700</code> → negrito.</li><li><code>line-height: 1.6</code> → altura da linha (mais espaço entre linhas = mais fácil de ler).</li><li><code>text-align: justify</code> → justificado, como em petição.</li><li><code>text-indent: 2.5cm</code> → recuo da primeira linha do parágrafo.</li><li><code>text-transform: uppercase</code> → tudo maiúsculo.</li></ul>',
+      dica: 'Este é o “padrão ABNT” de um parágrafo de petição, em CSS.',
+      codigo: pag('<h2>DOS FATOS</h2>\n<p>O autor, segurado do Regime Geral de Previdência Social, requereu administrativamente o benefício de aposentadoria por idade, que lhe foi indeferido sob o fundamento de ausência de carência.</p>\n<p>Contudo, conforme se demonstrará, o autor preenche todos os requisitos legais.</p>', 'body { font-family: "Times New Roman", serif; font-size: 12pt; padding: 20px; max-width: 700px; margin: 0 auto; }\nh2 { text-transform: uppercase; font-size: 12pt; }\np { text-align: justify; text-indent: 2.5cm; line-height: 1.5; }'),
+    },
+    {
+      id: 'glossario', titulo: '📖 Dicionário rápido',
+      exp: '<table style="border-collapse:collapse;width:100%">' + [
+        ['tag / etiqueta', 'Uma peça do HTML: <code>&lt;p&gt;</code>, <code>&lt;div&gt;</code>…'],
+        ['atributo', 'Informação extra dentro da etiqueta: <code>href</code>, <code>src</code>, <code>class</code>, <code>id</code>.'],
+        ['class / classe', 'Apelido que pode repetir. No CSS com ponto: <code>.cartao</code>.'],
+        ['id', 'Nome único. No CSS com #: <code>#topo</code>.'],
+        ['seletor', 'O “quem” de uma regra CSS.'],
+        ['propriedade', 'O “o quê” muda: <code>color</code>, <code>width</code>…'],
+        ['div', 'Caixa genérica para agrupar.'],
+        ['span', 'Pedaço de texto genérico.'],
+        ['px', 'Pixel, um pontinho da tela.'],
+        ['%', 'Porcentagem da caixa de fora.'],
+        ['rem / em', 'Medida baseada no tamanho da letra (1rem ≈ 16px).'],
+        ['vh / vw', '1vh = 1% da altura da tela; 1vw = 1% da largura.'],
+        ['fr', 'Uma “fração” do espaço livre (no grid).'],
+        ['padding', 'Espaço de DENTRO.'],
+        ['margin', 'Espaço de FORA.'],
+        ['border', 'Borda.'],
+        ['border-radius', 'Cantos arredondados.'],
+        ['display', 'Como a caixa se comporta: block, inline, flex, grid, none.'],
+        ['flex', 'Arruma os de dentro numa fila.'],
+        ['grid', 'Arruma os de dentro numa grade.'],
+        ['gap', 'Espaço entre os de dentro (flex/grid).'],
+        ['@media', 'Regra que só vale em certo tamanho de tela.'],
+        ['responsivo', 'Página que se ajusta a celular e computador.'],
+        ['viewport', 'A área visível da tela.'],
+        ['position', 'Onde a caixa fica: static, relative, absolute, fixed, sticky.'],
+        ['z-index', 'Quem fica por cima.'],
+        ['opacity', 'Transparência (0 a 1).'],
+        ['var(--nome)', 'Usar uma variável de CSS.'],
+        ['!important', 'Força a regra a ganhar das outras.'],
+        ['DOM', 'A “árvore” de caixas que o navegador monta a partir do HTML.'],
+        ['srcdoc / iframe', 'Uma página dentro de outra (o laboratório usa isso para a prévia).'],
+      ].map(([a, b]) => '<tr><td style="border-bottom:1px solid var(--linha);padding:6px;white-space:nowrap"><b>' + a + '</b></td><td style="border-bottom:1px solid var(--linha);padding:6px">' + b + '</td></tr>').join('') + '</table>',
+      semCodigo: true,
+    },
+  ];
+
+  let painel, atual = 0;
+  const $ = (s) => L.$(s, painel);
+  function montar(el) {
+    painel = el;
+    el.innerHTML = '<div class="cartao"><div class="licoes" id="ma-lista">' + LICOES.map((l, i) => '<button class="bt mini" data-i="' + i + '">' + L.esc(l.titulo) + '</button>').join('') + '</div></div><div id="ma-licao"></div>';
+    $('#ma-lista').onclick = (e) => { const b = e.target.closest('[data-i]'); if (b) abrir(+b.dataset.i); };
+    abrir(Math.min(L.pref.get('licao', 0), LICOES.length - 1));
+  }
+  function abrir(i) {
+    atual = i; L.pref.set('licao', i);
+    const l = LICOES[i];
+    painel.querySelectorAll('#ma-lista button').forEach((b, j) => { b.classList.toggle('ativo', j === i); if (j === i) b.scrollIntoView({ inline: 'center', block: 'nearest' }); });
+    const ant = i > 0 ? '<button class="bt" id="ma-ant">◀ Anterior</button>' : '';
+    const prox = i < LICOES.length - 1 ? '<button class="bt forte" id="ma-prox">Próxima ▶</button>' : '';
+    $('#ma-licao').innerHTML = '<div class="cartao licao"><h2>' + L.esc(l.titulo) + '</h2><div class="exp">' + l.exp + '</div>' + (l.dica ? '<div class="dica">💡 ' + L.esc(l.dica) + '</div>' : '') + '</div>' +
+      (l.semCodigo ? '' : '<div class="cartao"><div class="duas"><div><p class="peq mut" style="margin:0 0 4px">✍️ <b>Código</b> — pode mudar à vontade:</p><textarea class="codigo" id="ma-cod" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea></div><div><p class="peq mut" style="margin:0 0 4px">👀 <b>Resultado</b> ao vivo:</p><iframe id="ma-frame" title="Resultado da lição" sandbox="allow-scripts allow-modals"></iframe></div></div>' +
+        '<div class="linha" style="margin-top:8px"><button class="bt" id="ma-volta">🔄 Voltar ao original</button><button class="bt" id="ma-copiar">📋 Copiar</button><button class="bt forte" id="ma-insp">🔍 Levar para o Inspetor (mexer tocando)</button></div></div>') +
+      '<div class="linha" style="justify-content:space-between">' + ant + '<span></span>' + prox + '</div>';
+    if (!l.semCodigo) {
+      const ta = $('#ma-cod'); const guardado = L.pref.get('licao:' + l.id, null);
+      ta.value = guardado || l.codigo; ta.rows = Math.min(28, ta.value.split('\n').length + 1);
+      let t; const viver = () => { $('#ma-frame').srcdoc = ta.value; };
+      ta.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { viver(); L.pref.set('licao:' + l.id, ta.value); }, 350); });
+      ta.addEventListener('keydown', (e) => { if (e.key === 'Tab') { e.preventDefault(); const p = ta.selectionStart; ta.setRangeText('  ', p, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input')); } });
+      viver();
+      $('#ma-volta').onclick = () => { ta.value = l.codigo; L.pref.set('licao:' + l.id, null); viver(); };
+      $('#ma-copiar').onclick = () => L.copiar(ta.value);
+      $('#ma-insp').onclick = () => { L.codigo.trocar(ta.value); L.abrirAba('inspetor'); L.aviso('Agora toque nos pedaços da página para mexer.', 'ok'); };
+    }
+    if ($('#ma-ant')) $('#ma-ant').onclick = () => abrir(i - 1);
+    if ($('#ma-prox')) $('#ma-prox').onclick = () => abrir(i + 1);
+    painel.scrollIntoView({ block: 'start' }); window.scrollTo(0, 0);
+  }
+  L.manual = { LICOES, abrir };
+  L.registrar({ aba: 'manual', montar });
+})(window.L);
+
+</script>
+  <script>
+/* 50-editor-codigo.js — 📝 CÓDIGO
+   O código inteiro da página que você está estudando (com as suas mudanças).
+   Colar, abrir arquivo, usar, copiar, baixar e voltar ao exemplo. */
+(function (L) {
+  'use strict';
+  let painel; const $ = (s) => L.$(s, painel);
+  function montar(el) {
+    painel = el;
+    el.innerHTML =
+      '<div class="cartao"><p style="margin-top:0">Aqui fica <b>o código inteiro</b>. Cole o seu (apague o que está e cole), ou abra um arquivo .html, e toque em <b>✅ Usar este código</b>. Depois vá em 🔍 Mexer no visual e toque nas partes.</p>' +
+      '<div class="linha"><button class="bt forte" id="ed-usar">✅ Usar este código</button><button class="bt" id="ed-abrir">📂 Abrir arquivo</button><button class="bt" id="ed-colar">📋 Colar</button><button class="bt" id="ed-limpar">🧽 Esvaziar</button><button class="bt" id="ed-copiar">📄 Copiar tudo</button><button class="bt" id="ed-baixar">⬇ Baixar .html</button><button class="bt" id="ed-exemplo">🔄 Voltar ao exemplo</button>' +
+      '<input type="file" id="ed-arq" accept=".html,.htm,text/html" hidden></div>' +
+      '<p class="peq mut" id="ed-info"></p>' +
+      '<textarea class="codigo" id="ed-texto" spellcheck="false" autocapitalize="off" autocomplete="off" style="min-height:60vh"></textarea>' +
+      '<div class="dica">As mudanças que você faz tocando ficam num bloco <code>&lt;style id="ajustes-do-laboratorio"&gt;</code> perto do fim do <code>&lt;head&gt;</code>. Assim o seu código original não é bagunçado, e você vê exatamente qual CSS cada mudança criou.</div></div>';
+    const ta = $('#ed-texto');
+    const pintar = () => { ta.value = L.codigo.completo(); $('#ed-info').textContent = ta.value.split('\n').length + ' linhas · ' + ta.value.length.toLocaleString('pt-BR') + ' letras' + (L.codigo.temAjustes ? ' · com mudanças do laboratório' : ''); };
+    $('#ed-usar').onclick = () => { if (!ta.value.trim()) return L.aviso('A caixa está vazia.'); L.codigo.trocar(ta.value); L.aviso('Pronto! Agora vá em 🔍 Mexer no visual.', 'ok'); L.abrirAba('inspetor'); };
+    $('#ed-abrir').onclick = () => $('#ed-arq').click();
+    $('#ed-arq').onchange = async (e) => { const f = e.target.files[0]; if (!f) return; ta.value = await f.text(); L.codigo.trocar(ta.value); L.aviso('Aberto: ' + f.name, 'ok'); e.target.value = ''; };
+    $('#ed-colar').onclick = async () => { try { const t = await navigator.clipboard.readText(); if (t) { ta.value = t; L.aviso('Colado. Toque em ✅ Usar este código.'); } else throw 0; } catch { ta.focus(); L.aviso('Toque e segure dentro da caixa → Colar.'); } };
+    $('#ed-limpar').onclick = () => { ta.value = ''; ta.focus(); };
+    $('#ed-copiar').onclick = () => L.copiar(ta.value);
+    $('#ed-baixar').onclick = () => L.baixar('minha-pagina.html', ta.value);
+    $('#ed-exemplo').onclick = () => { if (confirm('Trocar pelo exemplo do escritório? (o código atual sai daqui)')) { L.codigo.trocar(L.codigo.EXEMPLO); pintar(); } };
+    ta.addEventListener('keydown', (e) => { if (e.key === 'Tab') { e.preventDefault(); ta.setRangeText('  ', ta.selectionStart, ta.selectionEnd, 'end'); } });
+    L.on('codigo-mudou', () => { if (document.activeElement !== ta) pintar(); });
+    L.on('aba', (a) => { if (a === 'codigo') pintar(); });
+    pintar();
+  }
+  // seleciona no código o começo de um pedaço (ex.: vindo do 🔎 Achar no código)
+  function achar(html) {
+    const ta = $('#ed-texto'); if (!ta) return;
+    ta.value = L.codigo.completo();
+    const abertura = String(html || '').split('>')[0] + '>';
+    let i = ta.value.indexOf(abertura);
+    if (i < 0) { const tag = (abertura.match(/^<\w+/) || [''])[0]; const cls = (abertura.match(/class="([^"]+)"/) || [])[1]; if (cls) i = ta.value.indexOf('class="' + cls + '"'); if (i < 0 && tag) i = ta.value.indexOf(tag); }
+    if (i < 0) return L.aviso('Não achei esse pedaço exatamente no código (ele pode ter sido criado por JavaScript).', 'erro');
+    ta.focus(); ta.setSelectionRange(i, i + abertura.length);
+    const linha = ta.value.slice(0, i).split('\n').length;
+    ta.scrollTop = Math.max(0, (linha - 4) * 19.5);
+    L.aviso('Está na linha ' + linha + ' (marcado).', 'ok');
+  }
+  L.editorCodigo = { achar };
+  L.registrar({ aba: 'codigo', montar });
+})(window.L);
+
+</script>
+  <script>
+/* 99-app.js — O ÚLTIMO VAGÃO: monta cada módulo na sua aba e liga as abas. */
+(function (L) {
+  'use strict';
+  L.$('#versao').textContent = 'v' + L.versao;
+  for (const m of L.modulos) {
+    const el = L.$('#painel-' + m.aba); if (!el) continue;
+    try { m.montar(el); } catch (e) { console.error(e); el.innerHTML = '<div class="cartao" style="color:var(--ruim)">Esta parte deu erro ao abrir: ' + L.esc(e.message) + '</div>'; }
+  }
+  L.$('#abas').addEventListener('click', (e) => { const b = e.target.closest('[data-aba]'); if (b) { L.abrirAba(b.dataset.aba); L.pref.set('aba', b.dataset.aba); } });
+  const aba = L.pref.get('aba', 'inspetor');
+  L.abrirAba(L.$('#painel-' + aba) ? aba : 'inspetor');
+})(window.L);
+
+</script>
+</body>
+</html>
